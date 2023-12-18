@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "pixilcraftnpcs",
+  "version": "${version}",
+  "name": "PixilCraftNPCs",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/theep/PixilCraftNPCs"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/pixilcraftnpcs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.selfdot.pixilcraftnpcs.client.PixilCraftNPCsClient"
+    ],
+    "main": [
+      "com.selfdot.pixilcraftnpcs.PixilCraftNPCs"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
