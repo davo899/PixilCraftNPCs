@@ -4,14 +4,17 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.selfdot.pixilcraftnpcs.command.NPCCommand;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
@@ -33,6 +36,7 @@ public class PixilCraftNPCs implements ModInitializer {
         FabricDefaultAttributeRegistry.register(NPC, NPCEntity.createMobAttributes());
 
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
+        ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
     }
 
     private void registerCommands(
@@ -42,4 +46,12 @@ public class PixilCraftNPCs implements ModInitializer {
     ) {
         new NPCCommand().register(dispatcher);
     }
+
+    private void onServerStopping(MinecraftServer server) {
+        server.getWorlds()
+            .forEach(serverWorld -> serverWorld.getEntitiesByType(NPC, e -> true)
+                .forEach(e -> e.remove(Entity.RemovalReason.KILLED))
+            );
+    }
+
 }
