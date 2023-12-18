@@ -18,7 +18,7 @@ public class PixilCraftNPCs implements ModInitializer {
         Registries.ENTITY_TYPE,
         new Identifier("pixilcraft", "npc"),
         FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, NPCEntity::new)
-            .dimensions(EntityDimensions.fixed(0.75f, 0.75f))
+            .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
             .build()
     );
 
