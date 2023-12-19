@@ -44,12 +44,7 @@ public class NPCTracker {
             try {
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                    JsonObject npcJson = entry.getValue().getAsJsonObject();
-                    String displayName = npcJson.get(DataKeys.NPC_DISPLAY_NAME).getAsString();
-                    double x = npcJson.get(DataKeys.NPC_X).getAsDouble();
-                    double y = npcJson.get(DataKeys.NPC_Y).getAsDouble();
-                    double z = npcJson.get(DataKeys.NPC_Z).getAsDouble();
-                    npcs.put(entry.getKey(), new NPC(displayName, x, y, z));
+                    npcs.put(entry.getKey(), NPC.fromJson(entry.getValue()));
                 }
 
             } catch (Exception e) {

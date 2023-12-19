@@ -1,5 +1,6 @@
 package com.selfdot.pixilcraftnpcs.npc;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.DataKeys;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
@@ -30,6 +31,15 @@ public class NPC {
         jsonObject.addProperty(DataKeys.NPC_Y, y);
         jsonObject.addProperty(DataKeys.NPC_Z, z);
         return jsonObject;
+    }
+
+    public static NPC fromJson(JsonElement jsonElement) {
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        String displayName = jsonObject.get(DataKeys.NPC_DISPLAY_NAME).getAsString();
+        double x = jsonObject.get(DataKeys.NPC_X).getAsDouble();
+        double y = jsonObject.get(DataKeys.NPC_Y).getAsDouble();
+        double z = jsonObject.get(DataKeys.NPC_Z).getAsDouble();
+        return new NPC(displayName, x, y, z);
     }
 
     public boolean spawn(ServerWorld world) {
