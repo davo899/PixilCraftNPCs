@@ -2,6 +2,8 @@ package com.selfdot.pixilcraftnpcs;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.selfdot.pixilcraftnpcs.command.NPCCommand;
+import com.selfdot.pixilcraftnpcs.npc.NPCEntity;
+import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -20,9 +22,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 
 public class PixilCraftNPCs implements ModInitializer {
-    /**
-     * Runs the mod initializer.
-     */
+
+    public static boolean DISABLED = false;
     public static final EntityType<NPCEntity> NPC = Registry.register(
         Registries.ENTITY_TYPE,
         new Identifier("pixilcraft", "npc"),
@@ -31,12 +32,17 @@ public class PixilCraftNPCs implements ModInitializer {
             .build()
     );
 
+    private static final String NPC_DATA_FILENAME = "pixilcraftnpcs/npcs.json";
+
     @Override
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(NPC, NPCEntity.createMobAttributes());
 
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
+        ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+
+        NPCTracker.getInstance().load(NPC_DATA_FILENAME);
     }
 
     private void registerCommands(
@@ -47,11 +53,18 @@ public class PixilCraftNPCs implements ModInitializer {
         new NPCCommand().register(dispatcher);
     }
 
+    private void onServerStarted(MinecraftServer server) {
+        NPCTracker.getInstance().setServer(server);
+        NPCTracker.getInstance().summonAllNPCEntities();
+    }
+
     private void onServerStopping(MinecraftServer server) {
         server.getWorlds()
             .forEach(serverWorld -> serverWorld.getEntitiesByType(NPC, e -> true)
                 .forEach(e -> e.remove(Entity.RemovalReason.KILLED))
             );
+
+        if (!DISABLED) NPCTracker.getInstance().save(NPC_DATA_FILENAME);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.selfdot.pixilcraftnpcs;
+package com.selfdot.pixilcraftnpcs.npc;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 
 public class NPCEntity extends MobEntity {
 
-    protected NPCEntity(EntityType<? extends MobEntity> entityType, World world) {
+    public NPCEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
     }
 

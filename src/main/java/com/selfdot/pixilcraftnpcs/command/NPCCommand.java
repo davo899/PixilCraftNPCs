@@ -1,12 +1,14 @@
 package com.selfdot.pixilcraftnpcs.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.selfdot.pixilcraftnpcs.NPCEntity;
+import com.selfdot.pixilcraftnpcs.npc.NPC;
+import com.selfdot.pixilcraftnpcs.npc.NPCEntity;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
-import net.minecraft.entity.SpawnReason;
+import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -21,7 +23,7 @@ public class NPCCommand {
             .then(LiteralArgumentBuilder.<ServerCommandSource>
                 literal("new")
                 .then(RequiredArgumentBuilder.<ServerCommandSource, String>
-                    argument("name", string())
+                    argument("id", string())
                     .executes(this::newNPC)
                 )
             )
@@ -36,10 +38,8 @@ public class NPCCommand {
         }
         ServerPlayerEntity player = source.getPlayer();
         if (player == null) return 0;
-        NPCEntity npcEntity = PixilCraftNPCs.NPC.create(player.getWorld());
-        if (npcEntity == null) return 0;
-        npcEntity.setPosition(player.getPos());
-        player.getWorld().spawnEntity(npcEntity);
+        String id = StringArgumentType.getString(ctx, "id");
+        NPCTracker.getInstance().add(id, new NPC("", player.getX(), player.getY(), player.getZ()));
         return 1;
     }
 
