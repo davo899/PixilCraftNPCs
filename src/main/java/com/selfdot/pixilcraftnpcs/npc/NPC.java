@@ -11,7 +11,6 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +55,9 @@ public class NPC {
     public void spawn(MinecraftServer server) {
         for (ServerWorld world : server.getWorlds()) {
             if (world.getRegistryKey().getValue().equals(position.worldID())) {
-                entity = PixilCraftNPCs.NPC.spawn(world, position.blockPos(), SpawnReason.MOB_SUMMONED);
+                entity = PixilCraftNPCs.NPC.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
                 if (entity == null) return;
-                entity.setPosition(position.blockPos().toCenterPos().offset(Direction.DOWN, 0.5d));
+                entity.setPosition(position.pos());
                 entity.setCommandList(commandList);
             }
         }

@@ -54,7 +54,7 @@ public class NPCCommand {
         String id = StringArgumentType.getString(ctx, "id");
         NPCTracker.getInstance().add(id, new NPC(
             "",
-            new MultiversePos(player.getBlockPos(), player.getWorld().getRegistryKey().getValue()),
+            new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
             new ArrayList<>()
         ));
         return 1;
