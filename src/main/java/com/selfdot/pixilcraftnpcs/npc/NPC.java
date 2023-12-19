@@ -5,8 +5,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
@@ -17,16 +19,12 @@ public class NPC {
 
     private NPCEntity entity;
     private final String displayName;
-    private final double x;
-    private final double y;
-    private final double z;
+    private final MultiversePos position;
     private List<String> commandList;
 
-    public NPC(String displayName, double x, double y, double z, List<String> commandList) {
+    public NPC(String displayName, MultiversePos position, List<String> commandList) {
         this.displayName = displayName;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.position = position;
         this.commandList = commandList;
     }
 
@@ -38,9 +36,7 @@ public class NPC {
     public JsonObject toJson() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(DataKeys.NPC_DISPLAY_NAME, displayName);
-        jsonObject.addProperty(DataKeys.NPC_X, x);
-        jsonObject.addProperty(DataKeys.NPC_Y, y);
-        jsonObject.addProperty(DataKeys.NPC_Z, z);
+        jsonObject.add(DataKeys.NPC_POSITION, position.toJson());
         JsonArray commandListJson = new JsonArray();
         commandList.forEach(commandListJson::add);
         jsonObject.add(DataKeys.NPC_COMMAND_LIST, commandListJson);
@@ -50,19 +46,21 @@ public class NPC {
     public static NPC fromJson(JsonElement jsonElement) {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String displayName = jsonObject.get(DataKeys.NPC_DISPLAY_NAME).getAsString();
-        double x = jsonObject.get(DataKeys.NPC_X).getAsDouble();
-        double y = jsonObject.get(DataKeys.NPC_Y).getAsDouble();
-        double z = jsonObject.get(DataKeys.NPC_Z).getAsDouble();
+        MultiversePos position = MultiversePos.fromJson(jsonObject.get(DataKeys.NPC_POSITION));
         List<String> commandList = new ArrayList<>();
         jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).forEach(command -> commandList.add(command.getAsString()));
-        return new NPC(displayName, x, y, z, commandList);
+        return new NPC(displayName, position, commandList);
     }
 
-    public void spawn(ServerWorld world) {
-        entity = PixilCraftNPCs.NPC.spawn(world, new BlockPos((int)x, (int)y, (int)z), SpawnReason.MOB_SUMMONED);
-        if (entity == null) return;
-        entity.setPosition(x, y, z);
-        entity.setCommandList(commandList);
+    public void spawn(MinecraftServer server) {
+        for (ServerWorld world : server.getWorlds()) {
+            if (world.getRegistryKey().getValue().equals(position.worldID())) {
+                entity = PixilCraftNPCs.NPC.spawn(world, position.blockPos(), SpawnReason.MOB_SUMMONED);
+                if (entity == null) return;
+                entity.setPosition(position.blockPos().toCenterPos());
+                entity.setCommandList(commandList);
+            }
+        }
     }
 
     public void remove() {

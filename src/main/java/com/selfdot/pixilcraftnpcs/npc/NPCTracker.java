@@ -29,12 +29,12 @@ public class NPCTracker {
     }
 
     public void summonAllNPCEntities() {
-        npcs.values().forEach(npc -> npc.spawn(server.getOverworld()));
+        npcs.values().forEach(npc -> npc.spawn(server));
     }
 
     public void add(String id, NPC npc) {
         npcs.put(id, npc);
-        npc.spawn(server.getOverworld());
+        npc.spawn(server);
     }
 
     public NPC get(String id) {

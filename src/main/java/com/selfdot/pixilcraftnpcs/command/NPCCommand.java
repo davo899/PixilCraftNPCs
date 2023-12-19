@@ -7,12 +7,14 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.selfdot.pixilcraftnpcs.npc.NPC;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
+import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 
@@ -51,7 +53,9 @@ public class NPCCommand {
         if (player == null) return 0;
         String id = StringArgumentType.getString(ctx, "id");
         NPCTracker.getInstance().add(id, new NPC(
-            "", player.getX(), player.getY(), player.getZ(), new ArrayList<>()
+            "",
+            new MultiversePos(player.getBlockPos(), player.getWorld().getRegistryKey().getValue()),
+            new ArrayList<>()
         ));
         return 1;
     }
