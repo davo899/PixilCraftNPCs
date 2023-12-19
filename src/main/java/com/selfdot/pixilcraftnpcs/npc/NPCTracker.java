@@ -2,7 +2,6 @@ package com.selfdot.pixilcraftnpcs.npc;
 
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
-import com.selfdot.pixilcraftnpcs.DataKeys;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.minecraft.server.MinecraftServer;
 
@@ -36,6 +35,10 @@ public class NPCTracker {
     public void add(String id, NPC npc) {
         npcs.put(id, npc);
         npc.spawn(server.getOverworld());
+    }
+
+    public NPC get(String id) {
+        return npcs.get(id);
     }
 
     public void load(String filename) {

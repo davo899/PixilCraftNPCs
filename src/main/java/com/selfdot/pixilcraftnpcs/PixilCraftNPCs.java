@@ -1,15 +1,20 @@
 package com.selfdot.pixilcraftnpcs;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.logging.LogUtils;
+import com.selfdot.pixilcraftnpcs.command.CommandListArgumentType;
 import com.selfdot.pixilcraftnpcs.command.NPCCommand;
 import com.selfdot.pixilcraftnpcs.npc.NPCEntity;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
+import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -20,13 +25,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
 
 public class PixilCraftNPCs implements ModInitializer {
 
     public static boolean DISABLED = false;
+    public static Logger LOGGER = LogUtils.getLogger();
     public static final EntityType<NPCEntity> NPC = Registry.register(
         Registries.ENTITY_TYPE,
-        new Identifier("pixilcraft", "npc"),
+        new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc"),
         FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, NPCEntity::new)
             .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
             .build()
@@ -37,6 +44,11 @@ public class PixilCraftNPCs implements ModInitializer {
     @Override
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(NPC, NPCEntity.createMobAttributes());
+        ArgumentTypeRegistry.registerArgumentType(
+            new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "command_list"),
+            CommandListArgumentType.class,
+            ConstantArgumentSerializer.of(CommandListArgumentType::new)
+        );
 
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);

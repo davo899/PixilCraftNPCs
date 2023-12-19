@@ -1,13 +1,17 @@
 package com.selfdot.pixilcraftnpcs.npc;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.selfdot.pixilcraftnpcs.DataKeys;
+import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NPC {
 
@@ -16,12 +20,19 @@ public class NPC {
     private final double x;
     private final double y;
     private final double z;
+    private List<String> commandList;
 
-    public NPC(String displayName, double x, double y, double z) {
+    public NPC(String displayName, double x, double y, double z, List<String> commandList) {
         this.displayName = displayName;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.commandList = commandList;
+    }
+
+    public void setCommandList(List<String> commandList) {
+        this.commandList = commandList;
+        entity.setCommandList(commandList);
     }
 
     public JsonObject toJson() {
@@ -30,6 +41,9 @@ public class NPC {
         jsonObject.addProperty(DataKeys.NPC_X, x);
         jsonObject.addProperty(DataKeys.NPC_Y, y);
         jsonObject.addProperty(DataKeys.NPC_Z, z);
+        JsonArray commandListJson = new JsonArray();
+        commandList.forEach(commandListJson::add);
+        jsonObject.add(DataKeys.NPC_COMMAND_LIST, commandListJson);
         return jsonObject;
     }
 
@@ -39,14 +53,16 @@ public class NPC {
         double x = jsonObject.get(DataKeys.NPC_X).getAsDouble();
         double y = jsonObject.get(DataKeys.NPC_Y).getAsDouble();
         double z = jsonObject.get(DataKeys.NPC_Z).getAsDouble();
-        return new NPC(displayName, x, y, z);
+        List<String> commandList = new ArrayList<>();
+        jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).forEach(command -> commandList.add(command.getAsString()));
+        return new NPC(displayName, x, y, z, commandList);
     }
 
-    public boolean spawn(ServerWorld world) {
+    public void spawn(ServerWorld world) {
         entity = PixilCraftNPCs.NPC.spawn(world, new BlockPos((int)x, (int)y, (int)z), SpawnReason.MOB_SUMMONED);
-        if (entity == null) return false;
+        if (entity == null) return;
         entity.setPosition(x, y, z);
-        return true;
+        entity.setCommandList(commandList);
     }
 
     public void remove() {
