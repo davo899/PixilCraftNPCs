@@ -41,6 +41,10 @@ public class NPCTracker {
         return npcs.get(id);
     }
 
+    public boolean exists(String id) {
+        return npcs.containsKey(id);
+    }
+
     public void load(String filename) {
         try {
             JsonElement jsonElement = JsonParser.parseReader(new FileReader(filename));

@@ -81,6 +81,10 @@ public class NPCCommand {
             yaw = player.getHeadYaw();
         }
         String id = StringArgumentType.getString(ctx, "id");
+        if (NPCTracker.getInstance().exists(id)) {
+            ctx.getSource().sendError(Text.literal("NPC " + id + " already exists"));
+            return -1;
+        }
         NPCTracker.getInstance().add(id, new NPC(
             "",
             new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
