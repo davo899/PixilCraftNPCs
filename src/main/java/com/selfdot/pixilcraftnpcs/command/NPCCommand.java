@@ -1,10 +1,12 @@
 package com.selfdot.pixilcraftnpcs.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.selfdot.pixilcraftnpcs.npc.NPC;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
@@ -27,7 +29,11 @@ public class NPCCommand {
                 literal("new")
                 .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                     argument("id", string())
-                    .executes(this::newNPC)
+                    .executes((ctx) -> newNPC(ctx, false))
+                    .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                        argument("facing", string())
+                        .executes((ctx) -> newNPC(ctx, true))
+                    )
                 )
             )
             .then(RequiredArgumentBuilder.<ServerCommandSource, String>
@@ -43,7 +49,7 @@ public class NPCCommand {
         );
     }
 
-    private int newNPC(CommandContext<ServerCommandSource> ctx) {
+    private int newNPC(CommandContext<ServerCommandSource> ctx, boolean withFacing) throws CommandSyntaxException {
         ServerCommandSource source = ctx.getSource();
         if (!source.isExecutedByPlayer()) {
             source.sendError(Text.literal("Must be executed by a player"));
@@ -51,10 +57,34 @@ public class NPCCommand {
         }
         ServerPlayerEntity player = source.getPlayer();
         if (player == null) return 0;
+
+        double pitch = 0;
+        double yaw;
+        if (withFacing) {
+            String facing = StringArgumentType.getString(ctx, "facing");
+            yaw = 360 * switch (facing.toUpperCase()) {
+                case "S" -> 0/8d;
+                case "SW" -> 1/8d;
+                case "W" -> 2/8d;
+                case "NW" -> 3/8d;
+                case "N" -> 4/8d;
+                case "NE" -> 5/8d;
+                case "E" -> 6/8d;
+                case "SE" -> 7/8d;
+                default -> throw new CommandSyntaxException(
+                    CommandSyntaxException.BUILT_IN_EXCEPTIONS.literalIncorrect(),
+                    () -> "Facing direction must be one of N,NE,E,SE,S,SW,W,NW"
+                );
+            };
+        } else {
+            pitch = player.getPitch();
+            yaw = player.getHeadYaw();
+        }
         String id = StringArgumentType.getString(ctx, "id");
         NPCTracker.getInstance().add(id, new NPC(
             "",
             new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
+            pitch, yaw,
             new ArrayList<>()
         ));
         return 1;
