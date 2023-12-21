@@ -1,9 +1,12 @@
 package com.selfdot.pixilcraftnpcs;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import com.selfdot.pixilcraftnpcs.command.CommandListArgumentType;
 import com.selfdot.pixilcraftnpcs.command.NPCCommand;
+import com.selfdot.pixilcraftnpcs.npc.InteractCooldownTracker;
 import com.selfdot.pixilcraftnpcs.npc.NPCEntity;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
@@ -31,6 +34,7 @@ public class PixilCraftNPCs implements ModInitializer {
 
     public static boolean DISABLED = false;
     public static Logger LOGGER = LogUtils.getLogger();
+    public static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final EntityType<NPCEntity> NPC = Registry.register(
         Registries.ENTITY_TYPE,
         new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc"),
@@ -56,6 +60,7 @@ public class PixilCraftNPCs implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
         NPCTracker.getInstance().load(NPC_DATA_FILENAME);
+        InteractCooldownTracker.getInstance().load();
     }
 
     private void registerCommands(
@@ -77,7 +82,10 @@ public class PixilCraftNPCs implements ModInitializer {
                 .forEach(e -> e.remove(Entity.RemovalReason.KILLED))
             );
 
-        if (!DISABLED) NPCTracker.getInstance().save(NPC_DATA_FILENAME);
+        if (!DISABLED) {
+            NPCTracker.getInstance().save(NPC_DATA_FILENAME);
+            InteractCooldownTracker.getInstance().save();
+        }
     }
 
 }

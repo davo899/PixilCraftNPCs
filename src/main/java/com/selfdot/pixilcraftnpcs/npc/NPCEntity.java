@@ -17,6 +17,7 @@ import java.util.Objects;
 
 public class NPCEntity extends MobEntity {
 
+    private String id;
     private List<String> commandList;
     private String displayName;
     private boolean nameplateEnabled;
@@ -42,6 +43,10 @@ public class NPCEntity extends MobEntity {
         this.commandList = commandList;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
         if (nameplateEnabled) setCustomName(Text.literal(displayName));
@@ -58,9 +63,11 @@ public class NPCEntity extends MobEntity {
     public ActionResult interactAt(PlayerEntity player, Vec3d hitPos, Hand hand) {
         if (getWorld().isClient) return ActionResult.PASS;
         if (hand == Hand.OFF_HAND) return ActionResult.PASS;
-        commandList.forEach(
-            command -> CommandUtils.executeCommandAsServer(command, Objects.requireNonNull(getServer()))
-        );
+        if (InteractCooldownTracker.getInstance().attemptInteract(player, id)) {
+            commandList.forEach(
+                command -> CommandUtils.executeCommandAsServer(command, Objects.requireNonNull(getServer()))
+            );
+        }
         return super.interactAt(player, hitPos, hand);
     }
 

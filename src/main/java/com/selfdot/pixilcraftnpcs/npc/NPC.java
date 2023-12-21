@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.List;
 
 public class NPC {
 
+    private final String id;
     private NPCEntity entity;
     private String displayName;
     private final MultiversePos position;
@@ -25,21 +25,30 @@ public class NPC {
     private final double yaw;
     private List<String> commandList;
     private boolean nameplateEnabled;
+    private long interactCooldownSeconds;
 
     public NPC(
+        String id,
         String displayName,
         MultiversePos position,
         double pitch,
         double yaw,
         List<String> commandList,
-        boolean nameplateEnabled
+        boolean nameplateEnabled,
+        int interactCooldownSeconds
     ) {
+        this.id = id;
         this.displayName = displayName;
         this.position = position;
         this.pitch = pitch;
         this.yaw = yaw;
         this.commandList = commandList;
         this.nameplateEnabled = nameplateEnabled;
+        this.interactCooldownSeconds = interactCooldownSeconds;
+    }
+
+    public long getInteractCooldownSeconds() {
+        return interactCooldownSeconds;
     }
 
     public void setCommandList(List<String> commandList) {
@@ -57,6 +66,10 @@ public class NPC {
         entity.setNameplateEnabled(nameplateEnabled);
     }
 
+    public void setInteractCooldownSeconds(long interactCooldownSeconds) {
+        this.interactCooldownSeconds = interactCooldownSeconds;
+    }
+
     public JsonObject toJson() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(DataKeys.NPC_DISPLAY_NAME, displayName);
@@ -67,10 +80,11 @@ public class NPC {
         commandList.forEach(commandListJson::add);
         jsonObject.add(DataKeys.NPC_COMMAND_LIST, commandListJson);
         jsonObject.addProperty(DataKeys.NPC_NAMEPLATE_ENABLED, nameplateEnabled);
+        jsonObject.addProperty(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS, interactCooldownSeconds);
         return jsonObject;
     }
 
-    public static NPC fromJson(JsonElement jsonElement) {
+    public static NPC fromJson(String id, JsonElement jsonElement) {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String displayName = jsonObject.get(DataKeys.NPC_DISPLAY_NAME).getAsString();
         MultiversePos position = MultiversePos.fromJson(jsonObject.get(DataKeys.NPC_POSITION));
@@ -79,7 +93,17 @@ public class NPC {
         List<String> commandList = new ArrayList<>();
         jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).forEach(command -> commandList.add(command.getAsString()));
         boolean nameplateEnabled = jsonObject.get(DataKeys.NPC_NAMEPLATE_ENABLED).getAsBoolean();
-        return new NPC(displayName, position, pitch, yaw, commandList, nameplateEnabled);
+        int interactCooldownSeconds = jsonObject.get(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS).getAsInt();
+        return new NPC(
+            id,
+            displayName,
+            position,
+            pitch,
+            yaw,
+            commandList,
+            nameplateEnabled,
+            interactCooldownSeconds
+        );
     }
 
     public void spawn(MinecraftServer server) {
@@ -87,6 +111,7 @@ public class NPC {
             if (world.getRegistryKey().getValue().equals(position.worldID())) {
                 entity = PixilCraftNPCs.NPC.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
                 if (entity == null) return;
+                entity.setId(id);
                 entity.setPosition(position.pos());
                 entity.setPitch((float)pitch);
                 entity.setBodyYaw((float)yaw);

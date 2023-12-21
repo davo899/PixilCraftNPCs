@@ -3,6 +3,7 @@ package com.selfdot.pixilcraftnpcs.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
+import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 
 public class NPCCommand {
@@ -62,6 +64,13 @@ public class NPCCommand {
                         .then(RequiredArgumentBuilder.<ServerCommandSource, Boolean>
                             argument("nameplateEnabled", bool())
                             .executes(this::setNPCNameplateEnabled)
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("interactCooldownSeconds")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Long>
+                            argument("interactCooldownSeconds", longArg())
+                            .executes(this::setNPCInteractCooldownSeconds)
                         )
                     )
                 )
@@ -107,10 +116,12 @@ public class NPCCommand {
         }
         NPCTracker.getInstance().add(id, new NPC(
             id,
+            id,
             new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
             pitch, yaw,
             new ArrayList<>(),
-            true
+            true,
+            0
         ));
         ctx.getSource().sendMessage(Text.literal("Created NPC " + id));
         return 1;
@@ -156,6 +167,18 @@ public class NPCCommand {
         npc.get().setNameplateEnabled(nameplateEnabled);
         String id = StringArgumentType.getString(ctx, "id");
         ctx.getSource().sendMessage(Text.literal("Set NPC " + id + " nameplate enabled to " + nameplateEnabled));
+        return 1;
+    }
+
+    private int setNPCInteractCooldownSeconds(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        long interactCooldownSeconds = LongArgumentType.getLong(ctx, "interactCooldownSeconds");
+        npc.get().setInteractCooldownSeconds(interactCooldownSeconds);
+        String id = StringArgumentType.getString(ctx, "id");
+        ctx.getSource().sendMessage(Text.literal(
+            "Set NPC " + id + "'s interact cooldown to " + interactCooldownSeconds + " seconds"
+        ));
         return 1;
     }
 

@@ -20,7 +20,6 @@ public class NPCTracker {
     public static NPCTracker getInstance() { return INSTANCE; }
     private NPCTracker() { }
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final Map<String, NPC> npcs = new HashMap<>();
     private MinecraftServer server;
 
@@ -51,14 +50,15 @@ public class NPCTracker {
             try {
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                    npcs.put(entry.getKey(), NPC.fromJson(entry.getValue()));
+                    npcs.put(entry.getKey(), NPC.fromJson(entry.getKey(), entry.getValue()));
                 }
+                PixilCraftNPCs.LOGGER.info("NPC data loaded");
 
             } catch (Exception e) {
                 PixilCraftNPCs.DISABLED = true;
                 npcs.values().forEach(NPC::remove);
-                LogUtils.getLogger().error("An exception occurred when loading NPC data:");
-                LogUtils.getLogger().error(e.getMessage());
+                PixilCraftNPCs.LOGGER.error("An exception occurred when loading NPC data:");
+                PixilCraftNPCs.LOGGER.error(e.getMessage());
             }
 
         } catch (FileNotFoundException e) {
@@ -66,12 +66,12 @@ public class NPCTracker {
             try {
                 Files.createDirectories(Paths.get(filename).getParent());
                 FileWriter writer = new FileWriter(filename);
-                gson.toJson(new JsonObject(), writer);
+                PixilCraftNPCs.GSON.toJson(new JsonObject(), writer);
                 writer.close();
 
             } catch (IOException ex) {
                 PixilCraftNPCs.DISABLED = true;
-                LogUtils.getLogger().error("Unable to generate NPC data file");
+                PixilCraftNPCs.LOGGER.error("Unable to generate NPC data file");
             }
         }
     }
@@ -84,7 +84,7 @@ public class NPCTracker {
         try {
             Files.createDirectories(Paths.get(filename).getParent());
             FileWriter writer = new FileWriter(filename);
-            gson.toJson(jsonObject, writer);
+            PixilCraftNPCs.GSON.toJson(jsonObject, writer);
             writer.close();
 
         } catch (IOException e) {

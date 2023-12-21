@@ -10,6 +10,7 @@ public class DataKeys {
     public static final String NPC_PITCH = "pitch";
     public static final String NPC_YAW = "yaw";
     public static final String NPC_NAMEPLATE_ENABLED = "nameplateEnabled";
+    public static final String NPC_INTERACT_COOLDOWN_SECONDS = "interactCooldownSeconds";
 
     public static final String MV_POS_X = "x";
     public static final String MV_POS_Y = "y";
