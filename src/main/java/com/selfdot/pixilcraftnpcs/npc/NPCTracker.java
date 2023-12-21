@@ -20,6 +20,7 @@ public class NPCTracker {
     public static NPCTracker getInstance() { return INSTANCE; }
     private NPCTracker() { }
 
+    private static final String FILENAME = "pixilcraftnpcs/npcs.json";
     private final Map<String, NPC> npcs = new HashMap<>();
     private MinecraftServer server;
 
@@ -44,9 +45,9 @@ public class NPCTracker {
         return npcs.containsKey(id);
     }
 
-    public void load(String filename) {
+    public void load() {
         try {
-            JsonElement jsonElement = JsonParser.parseReader(new FileReader(filename));
+            JsonElement jsonElement = JsonParser.parseReader(new FileReader(FILENAME));
             try {
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
@@ -64,8 +65,8 @@ public class NPCTracker {
         } catch (FileNotFoundException e) {
             LogUtils.getLogger().warn("NPC data file not found, attempting to generate");
             try {
-                Files.createDirectories(Paths.get(filename).getParent());
-                FileWriter writer = new FileWriter(filename);
+                Files.createDirectories(Paths.get(FILENAME).getParent());
+                FileWriter writer = new FileWriter(FILENAME);
                 PixilCraftNPCs.GSON.toJson(new JsonObject(), writer);
                 writer.close();
 
@@ -76,19 +77,19 @@ public class NPCTracker {
         }
     }
 
-    public void save(String filename) {
+    public void save() {
         JsonObject jsonObject = new JsonObject();
         for (Map.Entry<String, NPC> entry : npcs.entrySet()) {
             jsonObject.add(entry.getKey(), entry.getValue().toJson());
         }
         try {
-            Files.createDirectories(Paths.get(filename).getParent());
-            FileWriter writer = new FileWriter(filename);
+            Files.createDirectories(Paths.get(FILENAME).getParent());
+            FileWriter writer = new FileWriter(FILENAME);
             PixilCraftNPCs.GSON.toJson(jsonObject, writer);
             writer.close();
 
         } catch (IOException e) {
-            LogUtils.getLogger().error("Unable to store NPC data to " + filename);
+            LogUtils.getLogger().error("Unable to store NPC data to " + FILENAME);
         }
     }
 

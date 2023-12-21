@@ -44,8 +44,6 @@ public class PixilCraftNPCs implements ModInitializer {
             .build()
     );
 
-    private static final String NPC_DATA_FILENAME = "pixilcraftnpcs/npcs.json";
-
     @Override
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(NPC, NPCEntity.createMobAttributes());
@@ -59,7 +57,7 @@ public class PixilCraftNPCs implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
-        NPCTracker.getInstance().load(NPC_DATA_FILENAME);
+        NPCTracker.getInstance().load();
         InteractCooldownTracker.getInstance().load();
     }
 
@@ -83,7 +81,7 @@ public class PixilCraftNPCs implements ModInitializer {
             );
 
         if (!DISABLED) {
-            NPCTracker.getInstance().save(NPC_DATA_FILENAME);
+            NPCTracker.getInstance().save();
             InteractCooldownTracker.getInstance().save();
         }
     }
