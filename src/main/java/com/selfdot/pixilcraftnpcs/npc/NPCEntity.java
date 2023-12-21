@@ -21,6 +21,7 @@ public class NPCEntity extends MobEntity {
     public NPCEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
         setNoGravity(true);
+        setPersistent();
     }
 
     @Override
