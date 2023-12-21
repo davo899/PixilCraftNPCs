@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.List;
 public class NPC {
 
     private NPCEntity entity;
-    private final String displayName;
+    private String displayName;
     private final MultiversePos position;
     private final double pitch;
     private final double yaw;
@@ -35,6 +36,11 @@ public class NPC {
     public void setCommandList(List<String> commandList) {
         this.commandList = commandList;
         entity.setCommandList(commandList);
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+        entity.setDisplayName(displayName);
     }
 
     public JsonObject toJson() {
@@ -70,6 +76,7 @@ public class NPC {
                 entity.setBodyYaw((float)yaw);
                 entity.setHeadYaw((float)yaw);
                 entity.setCommandList(commandList);
+                entity.setDisplayName(displayName);
             }
         }
     }

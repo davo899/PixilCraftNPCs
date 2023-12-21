@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
@@ -38,6 +39,8 @@ public class NPCEntity extends MobEntity {
     public void setCommandList(List<String> commandList) {
         this.commandList = commandList;
     }
+
+    public void setDisplayName(String displayName) { setCustomName(Text.literal(displayName)); }
 
     @Override
     public ActionResult interactAt(PlayerEntity player, Vec3d hitPos, Hand hand) {

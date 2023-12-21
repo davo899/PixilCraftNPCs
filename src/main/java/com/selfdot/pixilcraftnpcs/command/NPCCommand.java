@@ -17,6 +17,7 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 
@@ -39,10 +40,20 @@ public class NPCCommand {
             .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                 argument("id", string())
                 .then(LiteralArgumentBuilder.<ServerCommandSource>
-                    literal("setCommandList")
-                    .then(RequiredArgumentBuilder.<ServerCommandSource, List<String>>
-                        argument("commandList", new CommandListArgumentType())
-                        .executes(this::setNPCCommandList)
+                    literal("set")
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("commandList")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, List<String>>
+                            argument("commandList", new CommandListArgumentType())
+                            .executes(this::setNPCCommandList)
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("displayName")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                            argument("displayName", string())
+                            .executes(this::setNPCDisplayName)
+                        )
                     )
                 )
             )
@@ -86,7 +97,7 @@ public class NPCCommand {
             return -1;
         }
         NPCTracker.getInstance().add(id, new NPC(
-            "",
+            id,
             new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
             pitch, yaw,
             new ArrayList<>()
@@ -95,19 +106,36 @@ public class NPCCommand {
         return 1;
     }
 
-    private int setNPCCommandList(CommandContext<ServerCommandSource> ctx) {
+    private static Optional<NPC> getNPC(CommandContext<ServerCommandSource> ctx) {
         String id = StringArgumentType.getString(ctx, "id");
         NPC npc = NPCTracker.getInstance().get(id);
         if (npc == null) {
             ctx.getSource().sendError(Text.literal("NPC " + id + " does not exist"));
-            return -1;
+            return Optional.empty();
         }
+        return Optional.of(npc);
+    }
+
+    private int setNPCCommandList(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
         List<String> commandList = CommandListArgumentType.getCommands(ctx, "commandList");
-        npc.setCommandList(commandList);
+        npc.get().setCommandList(commandList);
+        String id = StringArgumentType.getString(ctx, "id");
         ctx.getSource().sendMessage(Text.literal("Set NPC " + id + "'s command list to:"));
         for (String command : commandList) {
             ctx.getSource().sendMessage(Text.literal("  " + command));
         }
+        return 1;
+    }
+
+    private int setNPCDisplayName(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        String displayName = StringArgumentType.getString(ctx, "displayName");
+        npc.get().setDisplayName(displayName);
+        String id = StringArgumentType.getString(ctx, "id");
+        ctx.getSource().sendMessage(Text.literal("Set NPC " + id + "'s display name to " + displayName));
         return 1;
     }
 
