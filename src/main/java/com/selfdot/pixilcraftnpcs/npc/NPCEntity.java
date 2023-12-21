@@ -18,6 +18,8 @@ import java.util.Objects;
 public class NPCEntity extends MobEntity {
 
     private List<String> commandList;
+    private String displayName;
+    private boolean nameplateEnabled;
 
     public NPCEntity(EntityType<? extends MobEntity> entityType, World world) {
         super(entityType, world);
@@ -40,7 +42,17 @@ public class NPCEntity extends MobEntity {
         this.commandList = commandList;
     }
 
-    public void setDisplayName(String displayName) { setCustomName(Text.literal(displayName)); }
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+        if (nameplateEnabled) setCustomName(Text.literal(displayName));
+    }
+
+    public void setNameplateEnabled(boolean nameplateEnabled) {
+        this.nameplateEnabled = nameplateEnabled;
+        setCustomNameVisible(nameplateEnabled);
+        if (nameplateEnabled) setCustomName(Text.literal(displayName));
+        else setCustomName(null);
+    }
 
     @Override
     public ActionResult interactAt(PlayerEntity player, Vec3d hitPos, Hand hand) {

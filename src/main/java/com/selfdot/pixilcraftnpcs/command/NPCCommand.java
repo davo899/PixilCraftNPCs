@@ -2,6 +2,7 @@ package com.selfdot.pixilcraftnpcs.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.Message;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 
 public class NPCCommand {
@@ -53,6 +55,13 @@ public class NPCCommand {
                         .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                             argument("displayName", string())
                             .executes(this::setNPCDisplayName)
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("nameplateEnabled")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Boolean>
+                            argument("nameplateEnabled", bool())
+                            .executes(this::setNPCNameplateEnabled)
                         )
                     )
                 )
@@ -100,7 +109,8 @@ public class NPCCommand {
             id,
             new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
             pitch, yaw,
-            new ArrayList<>()
+            new ArrayList<>(),
+            true
         ));
         ctx.getSource().sendMessage(Text.literal("Created NPC " + id));
         return 1;
@@ -136,6 +146,16 @@ public class NPCCommand {
         npc.get().setDisplayName(displayName);
         String id = StringArgumentType.getString(ctx, "id");
         ctx.getSource().sendMessage(Text.literal("Set NPC " + id + "'s display name to " + displayName));
+        return 1;
+    }
+
+    private int setNPCNameplateEnabled(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        boolean nameplateEnabled = BoolArgumentType.getBool(ctx, "nameplateEnabled");
+        npc.get().setNameplateEnabled(nameplateEnabled);
+        String id = StringArgumentType.getString(ctx, "id");
+        ctx.getSource().sendMessage(Text.literal("Set NPC " + id + " nameplate enabled to " + nameplateEnabled));
         return 1;
     }
 

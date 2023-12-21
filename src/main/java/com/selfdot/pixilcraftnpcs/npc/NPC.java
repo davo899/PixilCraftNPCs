@@ -24,13 +24,22 @@ public class NPC {
     private final double pitch;
     private final double yaw;
     private List<String> commandList;
+    private boolean nameplateEnabled;
 
-    public NPC(String displayName, MultiversePos position, double pitch, double yaw, List<String> commandList) {
+    public NPC(
+        String displayName,
+        MultiversePos position,
+        double pitch,
+        double yaw,
+        List<String> commandList,
+        boolean nameplateEnabled
+    ) {
         this.displayName = displayName;
         this.position = position;
         this.pitch = pitch;
         this.yaw = yaw;
         this.commandList = commandList;
+        this.nameplateEnabled = nameplateEnabled;
     }
 
     public void setCommandList(List<String> commandList) {
@@ -43,6 +52,11 @@ public class NPC {
         entity.setDisplayName(displayName);
     }
 
+    public void setNameplateEnabled(boolean nameplateEnabled) {
+        this.nameplateEnabled = nameplateEnabled;
+        entity.setNameplateEnabled(nameplateEnabled);
+    }
+
     public JsonObject toJson() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(DataKeys.NPC_DISPLAY_NAME, displayName);
@@ -52,6 +66,7 @@ public class NPC {
         JsonArray commandListJson = new JsonArray();
         commandList.forEach(commandListJson::add);
         jsonObject.add(DataKeys.NPC_COMMAND_LIST, commandListJson);
+        jsonObject.addProperty(DataKeys.NPC_NAMEPLATE_ENABLED, nameplateEnabled);
         return jsonObject;
     }
 
@@ -63,7 +78,8 @@ public class NPC {
         double yaw = jsonObject.get(DataKeys.NPC_YAW).getAsDouble();
         List<String> commandList = new ArrayList<>();
         jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).forEach(command -> commandList.add(command.getAsString()));
-        return new NPC(displayName, position, pitch, yaw, commandList);
+        boolean nameplateEnabled = jsonObject.get(DataKeys.NPC_NAMEPLATE_ENABLED).getAsBoolean();
+        return new NPC(displayName, position, pitch, yaw, commandList, nameplateEnabled);
     }
 
     public void spawn(MinecraftServer server) {
@@ -77,6 +93,7 @@ public class NPC {
                 entity.setHeadYaw((float)yaw);
                 entity.setCommandList(commandList);
                 entity.setDisplayName(displayName);
+                entity.setNameplateEnabled(nameplateEnabled);
             }
         }
     }
