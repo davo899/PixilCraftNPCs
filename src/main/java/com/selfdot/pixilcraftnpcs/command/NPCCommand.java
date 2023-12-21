@@ -91,6 +91,7 @@ public class NPCCommand {
             pitch, yaw,
             new ArrayList<>()
         ));
+        ctx.getSource().sendMessage(Text.literal("Created NPC " + id));
         return 1;
     }
 
@@ -101,7 +102,12 @@ public class NPCCommand {
             ctx.getSource().sendError(Text.literal("NPC " + id + " does not exist"));
             return -1;
         }
-        npc.setCommandList(CommandListArgumentType.getCommands(ctx, "commandList"));
+        List<String> commandList = CommandListArgumentType.getCommands(ctx, "commandList");
+        npc.setCommandList(commandList);
+        ctx.getSource().sendMessage(Text.literal("Set NPC " + id + "'s command list to:"));
+        for (String command : commandList) {
+            ctx.getSource().sendMessage(Text.literal("  " + command));
+        }
         return 1;
     }
 
