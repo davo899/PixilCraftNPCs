@@ -44,7 +44,7 @@ public class PokemonNPC extends NPC<PokemonEntity> {
         entity.getUnbattleable().set(true);
         entity.setCustomName(Text.literal(displayName));
         entity.getNicknameVisible().set(true);
-        ((IPokemonEntityMixin)(Object)entity).setNPC(true);
+        ((IPokemonEntityMixin)(Object)entity).pixilCraftNPCs$setNPC(true);
         entity.getLabelLevel$common().subscribe(
             Priority.HIGHEST,
             n -> {

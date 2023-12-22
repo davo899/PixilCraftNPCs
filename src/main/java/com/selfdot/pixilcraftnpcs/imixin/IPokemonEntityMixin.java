@@ -2,6 +2,6 @@ package com.selfdot.pixilcraftnpcs.imixin;
 
 public interface IPokemonEntityMixin {
 
-    void setNPC(boolean NPC);
+    void pixilCraftNPCs$setNPC(boolean NPC);
 
 }
