@@ -5,8 +5,10 @@ import com.cobblemon.mod.common.pokemon.Species;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
 import com.selfdot.pixilcraftnpcs.util.CommandUtils;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
+import com.selfdot.pixilcraftnpcs.util.FTBUtils;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -32,6 +34,7 @@ public abstract class NPC<E extends MobEntity> {
     private List<String> commandList;
     protected boolean nameplateEnabled;
     private long interactCooldownSeconds;
+    private long questConditionID;
 
     public NPC(
         String id,
@@ -41,7 +44,8 @@ public abstract class NPC<E extends MobEntity> {
         double yaw,
         List<String> commandList,
         boolean nameplateEnabled,
-        int interactCooldownSeconds
+        int interactCooldownSeconds,
+        long questConditionID
     ) {
         this.id = id;
         this.displayName = displayName;
@@ -51,6 +55,7 @@ public abstract class NPC<E extends MobEntity> {
         this.commandList = commandList;
         this.nameplateEnabled = nameplateEnabled;
         this.interactCooldownSeconds = interactCooldownSeconds;
+        this.questConditionID = questConditionID;
     }
 
     public long getInteractCooldownSeconds() {
@@ -78,18 +83,32 @@ public abstract class NPC<E extends MobEntity> {
         this.interactCooldownSeconds = interactCooldownSeconds;
     }
 
-    public void checkInteract(PlayerEntity player, Entity entity) {
-        if (this.entity == entity) {
-            if (InteractCooldownTracker.getInstance().attemptInteract(player, id)) {
-                commandList.forEach(
-                    command -> CommandUtils.executeCommandAsServer(command, Objects.requireNonNull(player.getServer()))
-                );
-                onInteract();
-            }
-        }
+    public void setQuestConditionID(long questConditionID, MinecraftServer server) {
+        this.questConditionID = questConditionID;
+        server.getPlayerManager().getPlayerList().forEach(this::sendQuestUpdate);
     }
 
-    public void onInteract() { }
+    private void sendQuestUpdate(ServerPlayerEntity player) {
+        new SetNPCVisibilityPacket(
+            entity.getUuid(),
+            (questConditionID == -1 || FTBUtils.completedQuest(player, questConditionID))
+        ).sendS2C(player);
+    }
+
+    public void onQuestCompleted(ServerPlayerEntity player, long questConditionID) {
+        if (questConditionID != this.questConditionID) return;
+        sendQuestUpdate(player);
+    }
+
+    public void checkInteract(PlayerEntity player, Entity entity) {
+        if (this.entity != entity) return;
+        if (questConditionID != -1 && !FTBUtils.completedQuest(player, questConditionID)) return;
+        if (!InteractCooldownTracker.getInstance().attemptInteract(player, id)) return;
+
+        commandList.forEach(
+            command -> CommandUtils.executeCommandAsServer(command, Objects.requireNonNull(player.getServer()))
+        );
+    }
 
     public JsonObject toJson() {
         JsonObject jsonObject = new JsonObject();
@@ -102,6 +121,7 @@ public abstract class NPC<E extends MobEntity> {
         jsonObject.add(DataKeys.NPC_COMMAND_LIST, commandListJson);
         jsonObject.addProperty(DataKeys.NPC_NAMEPLATE_ENABLED, nameplateEnabled);
         jsonObject.addProperty(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS, interactCooldownSeconds);
+        jsonObject.addProperty(DataKeys.NPC_QUEST_CONDITION_ID, questConditionID);
         return jsonObject;
     }
 
@@ -115,6 +135,7 @@ public abstract class NPC<E extends MobEntity> {
         jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).forEach(command -> commandList.add(command.getAsString()));
         boolean nameplateEnabled = jsonObject.get(DataKeys.NPC_NAMEPLATE_ENABLED).getAsBoolean();
         int interactCooldownSeconds = jsonObject.get(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS).getAsInt();
+        long questConditionID = jsonObject.get(DataKeys.NPC_QUEST_CONDITION_ID).getAsLong();
         String type = jsonObject.get(DataKeys.NPC_TYPE).getAsString();
         return switch (type) {
             case DataKeys.NPC_HUMAN -> {
@@ -123,7 +144,7 @@ public abstract class NPC<E extends MobEntity> {
                 if (skin == null) throw new IllegalArgumentException("Failed to parse skin ID: " + skinStr);
                 yield new HumanNPC(
                     id, displayName, position, pitch, yaw, commandList,
-                    nameplateEnabled, interactCooldownSeconds, skin
+                    nameplateEnabled, interactCooldownSeconds, questConditionID, skin
                 );
             }
             case DataKeys.NPC_POKEMON -> {
@@ -134,7 +155,7 @@ public abstract class NPC<E extends MobEntity> {
                 if (species == null) throw new IllegalArgumentException("Unknown species " + speciesStr);
                 yield new PokemonNPC(
                     id, displayName, position, pitch, yaw, commandList,
-                    nameplateEnabled, interactCooldownSeconds, species
+                    nameplateEnabled, interactCooldownSeconds, questConditionID, species
                 );
             }
             default -> throw new IllegalArgumentException("NPC type was '" + type + "', must be: human, pokemon");
@@ -167,6 +188,8 @@ public abstract class NPC<E extends MobEntity> {
         entity.discard();
     }
 
-    public void sendClientUpdate(ServerPlayerEntity player) { }
+    public void sendClientUpdate(ServerPlayerEntity player) {
+        sendQuestUpdate(player);
+    }
 
 }

@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class NPCTracker {
 
@@ -31,6 +32,10 @@ public class NPCTracker {
         this.server = server;
     }
 
+    public Set<String> getAllIDs() {
+        return npcs.keySet();
+    }
+
     public void summonAllNPCEntities() {
         npcs.values().forEach(npc -> npc.spawn(server));
     }
@@ -41,6 +46,10 @@ public class NPCTracker {
 
     public void sendClientUpdates(ServerPlayerEntity player) {
         npcs.values().forEach(npc -> npc.sendClientUpdate(player));
+    }
+
+    public void onQuestCompleted(ServerPlayerEntity player, long questID) {
+        npcs.values().forEach(npc -> npc.onQuestCompleted(player, questID));
     }
 
     public void add(String id, NPC<?> npc) {

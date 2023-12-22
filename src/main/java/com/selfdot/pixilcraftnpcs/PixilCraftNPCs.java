@@ -13,6 +13,10 @@ import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.InteractionEvent;
 import dev.architectury.event.events.common.PlayerEvent;
+import dev.ftb.mods.ftbquests.events.CustomTaskEvent;
+import dev.ftb.mods.ftbquests.events.ObjectCompletedEvent;
+import dev.ftb.mods.ftbquests.events.ObjectProgressEvent;
+import dev.ftb.mods.ftbquests.events.ObjectStartedEvent;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -63,8 +67,8 @@ public class PixilCraftNPCs implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
         PlayerEvent.PLAYER_JOIN.register(this::onPlayerJoin);
-
         InteractionEvent.INTERACT_ENTITY.register(this::onInteractEntity);
+        ObjectCompletedEvent.QUEST.register(this::onQuestCompleted);
 
         InteractCooldownTracker.getInstance().load();
     }
@@ -100,6 +104,13 @@ public class PixilCraftNPCs implements ModInitializer {
         if (player.getWorld().isClient) return EventResult.pass();
         if (hand == Hand.OFF_HAND) return EventResult.pass();
         NPCTracker.getInstance().checkInteract(player, entity);
+        return EventResult.pass();
+    }
+
+    private EventResult onQuestCompleted(ObjectCompletedEvent.QuestEvent questEvent) {
+        questEvent.getOnlineMembers().forEach(
+            player -> NPCTracker.getInstance().onQuestCompleted(player, questEvent.getQuest().id)
+        );
         return EventResult.pass();
     }
 

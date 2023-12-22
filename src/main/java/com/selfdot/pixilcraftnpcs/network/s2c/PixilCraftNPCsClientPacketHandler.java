@@ -1,6 +1,7 @@
 package com.selfdot.pixilcraftnpcs.network.s2c;
 
 import com.selfdot.pixilcraftnpcs.client.HumanNPCTextureTracker;
+import com.selfdot.pixilcraftnpcs.client.NPCVisibilityTracker;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -20,6 +21,17 @@ public class PixilCraftNPCsClientPacketHandler {
         UUID npcEntityID = buf.readUuid();
         Identifier texture = buf.readIdentifier();
         HumanNPCTextureTracker.getInstance().putTexture(npcEntityID, texture);
+    }
+
+    public void onSetNPCVisibility(
+        MinecraftClient client,
+        ClientPlayNetworkHandler handler,
+        PacketByteBuf buf,
+        PacketSender responseSender
+    ) {
+        UUID npcEntityID = buf.readUuid();
+        boolean visible = buf.readBoolean();
+        NPCVisibilityTracker.getInstance().putVisibility(npcEntityID, visible);
     }
 
 }

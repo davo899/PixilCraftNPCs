@@ -11,6 +11,7 @@ public class DataKeys {
     public static final String NPC_YAW = "yaw";
     public static final String NPC_NAMEPLATE_ENABLED = "nameplateEnabled";
     public static final String NPC_INTERACT_COOLDOWN_SECONDS = "interactCooldownSeconds";
+    public static final String NPC_QUEST_CONDITION_ID = "questConditionID";
     public static final String NPC_TYPE = "type";
     public static final String NPC_HUMAN = "human";
     public static final String NPC_HUMAN_SKIN = "skin";

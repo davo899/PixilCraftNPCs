@@ -25,6 +25,13 @@ repositories {
             includeGroup("maven.modrinth")
         }
     }
+    maven {
+        url = uri("https://maven.saps.dev/releases")
+        content {
+            includeGroup("dev.latvian.mods")
+            includeGroup("dev.ftb.mods")
+        }
+    }
 }
 
 dependencies {
@@ -43,6 +50,13 @@ dependencies {
 
     // Cobblemon
     modImplementation("com.cobblemon:fabric:${property("cobblemon_version")}")
+
+    modApi("dev.ftb.mods:ftb-library-fabric:${property("ftb_library_version")}") {
+        isTransitive = false
+    }
+    modApi("dev.ftb.mods:ftb-teams-fabric:${property("ftb_teams_version")}")
+    modApi("dev.ftb.mods:ftb-quests-fabric:${property("ftb_quests_version")}")
+    modApi("dev.latvian.mods:item-filters-fabric:${property("itemfilters_version")}")
 
     include(implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")!!)
 

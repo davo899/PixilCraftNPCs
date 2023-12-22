@@ -21,15 +21,18 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
     public HumanNPC(
         String id, String displayName, MultiversePos position, double pitch, double yaw,
         List<String> commandList, boolean nameplateEnabled, int interactCooldownSeconds,
-        Identifier texture
+        long questConditionID, Identifier texture
     ) {
-        super(id, displayName, position, pitch, yaw, commandList, nameplateEnabled, interactCooldownSeconds);
+        super(
+            id, displayName, position, pitch, yaw, commandList,
+            nameplateEnabled, interactCooldownSeconds, questConditionID
+        );
         this.texture = texture;
     }
 
     public void setTexture(Identifier texture, MinecraftServer server) {
         this.texture = texture;
-        server.getPlayerManager().getPlayerList().forEach(this::sendClientUpdate);
+        server.getPlayerManager().getPlayerList().forEach(this::sendTextureUpdate);
     }
 
     @Override
@@ -37,10 +40,14 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
         return PixilCraftNPCs.NPC_HUMAN.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
     }
 
+    private void sendTextureUpdate(ServerPlayerEntity player) {
+        new SetHumanNPCTexturePacket(entity.getUuid(), texture).sendS2C(player);
+    }
+
     @Override
     public void sendClientUpdate(ServerPlayerEntity player) {
         super.sendClientUpdate(player);
-        new SetHumanNPCTexturePacket(entity.getUuid(), texture).sendS2C(player);
+        sendTextureUpdate(player);
     }
 
     @Override

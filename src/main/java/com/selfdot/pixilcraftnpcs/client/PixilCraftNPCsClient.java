@@ -1,15 +1,19 @@
 package com.selfdot.pixilcraftnpcs.client;
 
+import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer;
 import com.selfdot.pixilcraftnpcs.network.s2c.PixilCraftNPCsClientPacketHandler;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetHumanNPCTexturePacket;
+import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPCEntity;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 public class PixilCraftNPCsClient implements ClientModInitializer {
@@ -34,6 +38,9 @@ public class PixilCraftNPCsClient implements ClientModInitializer {
         PixilCraftNPCsClientPacketHandler packetHandler = new PixilCraftNPCsClientPacketHandler();
         ClientPlayNetworking.registerGlobalReceiver(
             SetHumanNPCTexturePacket.ID, packetHandler::onSetHumanNPCTexture
+        );
+        ClientPlayNetworking.registerGlobalReceiver(
+            SetNPCVisibilityPacket.ID, packetHandler::onSetNPCVisibility
         );
     }
 }

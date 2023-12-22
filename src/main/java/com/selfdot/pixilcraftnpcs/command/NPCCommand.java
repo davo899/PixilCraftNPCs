@@ -51,6 +51,12 @@ public class NPCCommand {
                     literal("pokemon")
                     .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                         argument("species", string())
+                        .suggests((ctx, builder) -> {
+                            PokemonSpecies.INSTANCE.getSpecies().forEach(
+                                species -> builder.suggest(species.getName().toLowerCase())
+                            );
+                            return builder.buildFuture();
+                        })
                         .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                             argument("id", string())
                             .executes((ctx) -> newNPC(ctx, DataKeys.NPC_POKEMON, false))
@@ -64,6 +70,10 @@ public class NPCCommand {
             )
             .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                 argument("id", string())
+                .suggests((ctx, builder) -> {
+                    NPCTracker.getInstance().getAllIDs().forEach(builder::suggest);
+                    return builder.buildFuture();
+                })
                 .then(LiteralArgumentBuilder.<ServerCommandSource>
                     literal("set")
                     .then(LiteralArgumentBuilder.<ServerCommandSource>
@@ -99,6 +109,17 @@ public class NPCCommand {
                         .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                             argument("texture", string())
                             .executes(this::setHumanNPCSkin)
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("questCondition")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                            argument("questID", string())
+                            .executes(this::setNPCQuestCondition)
+                        )
+                        .then(LiteralArgumentBuilder.<ServerCommandSource>
+                            literal("none")
+                            .executes(this::clearNPCQuestCondition)
                         )
                     )
                 )
@@ -160,6 +181,7 @@ public class NPCCommand {
                 new ArrayList<>(),
                 true,
                 0,
+                -1,
                 species
             ));
 
@@ -172,6 +194,7 @@ public class NPCCommand {
                 new ArrayList<>(),
                 true,
                 0,
+                -1,
                 new Identifier("textures/entity/player/slim/steve.png")
             ));
         }
@@ -246,6 +269,30 @@ public class NPCCommand {
         humanNPC.setTexture(new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, texture), ctx.getSource().getServer());
         ctx.getSource().sendMessage(Text.literal(
             "Set NPC " + id + "'s texture file to " + texture
+        ));
+        return 1;
+    }
+
+    private int setNPCQuestCondition(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC<?>> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        String questIDString = StringArgumentType.getString(ctx, "questID");
+        long questID = Long.decode("0x" + questIDString);
+        String id = StringArgumentType.getString(ctx, "id");
+        npc.get().setQuestConditionID(questID, ctx.getSource().getServer());
+        ctx.getSource().sendMessage(Text.literal(
+            "Set NPC " + id + "'s quest condition ID to " + questIDString
+        ));
+        return 1;
+    }
+
+    private int clearNPCQuestCondition(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC<?>> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        String id = StringArgumentType.getString(ctx, "id");
+        npc.get().setQuestConditionID(-1, ctx.getSource().getServer());
+        ctx.getSource().sendMessage(Text.literal(
+            "Cleared NPC " + id + "'s quest condition"
         ));
         return 1;
     }

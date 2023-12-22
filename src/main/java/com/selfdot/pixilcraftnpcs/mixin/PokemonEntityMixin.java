@@ -15,6 +15,11 @@ public class PokemonEntityMixin implements IPokemonEntityMixin {
     private boolean isNPC = false;
 
     @Unique
+    public boolean pixilCraftNPCs$isNPC() {
+        return isNPC;
+    }
+
+    @Unique
     public void pixilCraftNPCs$setNPC(boolean NPC) {
         isNPC = NPC;
     }
