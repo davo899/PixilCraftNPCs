@@ -11,6 +11,10 @@ public class DataKeys {
     public static final String NPC_YAW = "yaw";
     public static final String NPC_NAMEPLATE_ENABLED = "nameplateEnabled";
     public static final String NPC_INTERACT_COOLDOWN_SECONDS = "interactCooldownSeconds";
+    public static final String NPC_TYPE = "type";
+    public static final String NPC_HUMAN = "human";
+    public static final String NPC_POKEMON = "pokemon";
+    public static final String NPC_POKEMON_SPECIES = "species";
 
     public static final String MV_POS_X = "x";
     public static final String MV_POS_Y = "y";

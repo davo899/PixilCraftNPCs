@@ -3,6 +3,8 @@ package com.selfdot.pixilcraftnpcs.npc;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 
 import java.io.FileNotFoundException;
@@ -21,7 +23,7 @@ public class NPCTracker {
     private NPCTracker() { }
 
     private static final String FILENAME = "pixilcraftnpcs/npcs.json";
-    private final Map<String, NPC> npcs = new HashMap<>();
+    private final Map<String, NPC<?>> npcs = new HashMap<>();
     private MinecraftServer server;
 
     public void setServer(MinecraftServer server) {
@@ -31,18 +33,25 @@ public class NPCTracker {
     public void summonAllNPCEntities() {
         npcs.values().forEach(npc -> npc.spawn(server));
     }
+    public void discardAllNPCEntities() {
+        npcs.values().forEach(NPC::discard);
+    }
 
-    public void add(String id, NPC npc) {
+    public void add(String id, NPC<?> npc) {
         npcs.put(id, npc);
         npc.spawn(server);
     }
 
-    public NPC get(String id) {
+    public NPC<?> get(String id) {
         return npcs.get(id);
     }
 
     public boolean exists(String id) {
         return npcs.containsKey(id);
+    }
+
+    public void checkInteract(PlayerEntity player, Entity entity) {
+        npcs.values().forEach(npc -> npc.checkInteract(player, entity));
     }
 
     public void load() {
@@ -79,7 +88,7 @@ public class NPCTracker {
 
     public void save() {
         JsonObject jsonObject = new JsonObject();
-        for (Map.Entry<String, NPC> entry : npcs.entrySet()) {
+        for (Map.Entry<String, NPC<?>> entry : npcs.entrySet()) {
             jsonObject.add(entry.getKey(), entry.getValue().toJson());
         }
         try {

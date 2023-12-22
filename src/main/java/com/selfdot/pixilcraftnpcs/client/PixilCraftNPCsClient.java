@@ -1,6 +1,6 @@
 package com.selfdot.pixilcraftnpcs.client;
 
-import com.selfdot.pixilcraftnpcs.npc.NPCEntity;
+import com.selfdot.pixilcraftnpcs.npc.HumanNPCEntity;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -17,16 +17,17 @@ public class PixilCraftNPCsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         EntityRendererRegistry.register(
-            PixilCraftNPCs.NPC, context -> new MobEntityRenderer<>(
+            PixilCraftNPCs.NPC_HUMAN, context -> new MobEntityRenderer<>(
                 context,
                 new PlayerEntityModel<>(context.getPart(EntityModelLayers.PLAYER), false),
                 1f
             ) {
                 @Override
-                public Identifier getTexture(NPCEntity entity) {
+                public Identifier getTexture(HumanNPCEntity entity) {
                     return DefaultSkinHelper.getTexture();
                 }
             }
         );
+        //EntityRendererRegistry.register(PixilCraftNPCs.NPC_POKEMON, PokemonNPCEntityRenderer::new);
     }
 }
