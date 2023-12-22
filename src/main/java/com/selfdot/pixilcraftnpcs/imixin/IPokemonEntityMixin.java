@@ -1,4 +1,4 @@
-package com.selfdot.pixilcraftnpcs.npc;
+package com.selfdot.pixilcraftnpcs.imixin;
 
 public interface IPokemonEntityMixin {
 

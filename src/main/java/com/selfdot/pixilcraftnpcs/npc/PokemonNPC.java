@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
 import com.google.gson.JsonObject;
+import com.selfdot.pixilcraftnpcs.imixin.IPokemonEntityMixin;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import kotlin.Unit;
