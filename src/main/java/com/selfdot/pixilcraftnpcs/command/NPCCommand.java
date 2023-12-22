@@ -19,7 +19,7 @@ import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.Pair;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +50,9 @@ public class NPCCommand {
                 .then(LiteralArgumentBuilder.<ServerCommandSource>
                     literal("pokemon")
                     .then(RequiredArgumentBuilder.<ServerCommandSource, String>
-                        argument("id", string())
+                        argument("species", string())
                         .then(RequiredArgumentBuilder.<ServerCommandSource, String>
-                            argument("species", string())
+                            argument("id", string())
                             .executes((ctx) -> newNPC(ctx, DataKeys.NPC_POKEMON, false))
                             .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                                 argument("facing", string())
@@ -92,6 +92,13 @@ public class NPCCommand {
                         .then(RequiredArgumentBuilder.<ServerCommandSource, Long>
                             argument("interactCooldownSeconds", longArg())
                             .executes(this::setNPCInteractCooldownSeconds)
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("texture")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                            argument("texture", string())
+                            .executes(this::setHumanNPCSkin)
                         )
                     )
                 )
@@ -164,7 +171,8 @@ public class NPCCommand {
                 pitch, yaw,
                 new ArrayList<>(),
                 true,
-                0
+                0,
+                new Identifier("textures/entity/player/slim/steve.png")
             ));
         }
         ctx.getSource().sendMessage(Text.literal("Created new NPC " + id));
@@ -222,6 +230,22 @@ public class NPCCommand {
         String id = StringArgumentType.getString(ctx, "id");
         ctx.getSource().sendMessage(Text.literal(
             "Set NPC " + id + "'s interact cooldown to " + interactCooldownSeconds + " seconds"
+        ));
+        return 1;
+    }
+
+    private int setHumanNPCSkin(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC<?>> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        String id = StringArgumentType.getString(ctx, "id");
+        if (!(npc.get() instanceof HumanNPC humanNPC)) {
+            ctx.getSource().sendError(Text.literal("NPC " + id + " is not a human NPC"));
+            return -1;
+        }
+        String texture = StringArgumentType.getString(ctx, "texture");
+        humanNPC.setTexture(new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, texture), ctx.getSource().getServer());
+        ctx.getSource().sendMessage(Text.literal(
+            "Set NPC " + id + "'s texture file to " + texture
         ));
         return 1;
     }

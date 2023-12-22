@@ -2,7 +2,7 @@ package com.selfdot.pixilcraftnpcs.util;
 
 public class DataKeys {
 
-    public static final String PIXILCRAFT_NAMESPACE = "pixilcraft";
+    public static final String PIXILCRAFT_NAMESPACE = "pixilcraftnpcs";
 
     public static final String NPC_DISPLAY_NAME = "displayName";
     public static final String NPC_COMMAND_LIST = "commandList";
@@ -13,6 +13,7 @@ public class DataKeys {
     public static final String NPC_INTERACT_COOLDOWN_SECONDS = "interactCooldownSeconds";
     public static final String NPC_TYPE = "type";
     public static final String NPC_HUMAN = "human";
+    public static final String NPC_HUMAN_SKIN = "skin";
     public static final String NPC_POKEMON = "pokemon";
     public static final String NPC_POKEMON_SPECIES = "species";
 

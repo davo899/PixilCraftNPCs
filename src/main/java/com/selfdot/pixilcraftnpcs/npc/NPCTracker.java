@@ -6,6 +6,7 @@ import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -33,8 +34,13 @@ public class NPCTracker {
     public void summonAllNPCEntities() {
         npcs.values().forEach(npc -> npc.spawn(server));
     }
+
     public void discardAllNPCEntities() {
         npcs.values().forEach(NPC::discard);
+    }
+
+    public void sendClientUpdates(ServerPlayerEntity player) {
+        npcs.values().forEach(npc -> npc.sendClientUpdate(player));
     }
 
     public void add(String id, NPC<?> npc) {

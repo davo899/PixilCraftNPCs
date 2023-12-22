@@ -12,6 +12,7 @@ import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.InteractionEvent;
+import dev.architectury.event.events.common.PlayerEvent;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -30,6 +31,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -60,6 +62,7 @@ public class PixilCraftNPCs implements ModInitializer {
         CommandRegistrationCallback.EVENT.register(this::registerCommands);
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+        PlayerEvent.PLAYER_JOIN.register(this::onPlayerJoin);
 
         InteractionEvent.INTERACT_ENTITY.register(this::onInteractEntity);
 
@@ -87,6 +90,10 @@ public class PixilCraftNPCs implements ModInitializer {
             NPCTracker.getInstance().save();
             InteractCooldownTracker.getInstance().save();
         }
+    }
+
+    private void onPlayerJoin(ServerPlayerEntity player) {
+        NPCTracker.getInstance().sendClientUpdates(player);
     }
 
     private EventResult onInteractEntity(PlayerEntity player, Entity entity, Hand hand) {

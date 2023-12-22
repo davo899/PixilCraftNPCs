@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -116,10 +117,15 @@ public abstract class NPC<E extends MobEntity> {
         int interactCooldownSeconds = jsonObject.get(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS).getAsInt();
         String type = jsonObject.get(DataKeys.NPC_TYPE).getAsString();
         return switch (type) {
-            case DataKeys.NPC_HUMAN -> new HumanNPC(
-                id, displayName, position, pitch, yaw, commandList,
-                nameplateEnabled, interactCooldownSeconds
-            );
+            case DataKeys.NPC_HUMAN -> {
+                String skinStr = jsonObject.get(DataKeys.NPC_HUMAN_SKIN).getAsString();
+                Identifier skin = Identifier.tryParse(skinStr);
+                if (skin == null) throw new IllegalArgumentException("Failed to parse skin ID: " + skinStr);
+                yield new HumanNPC(
+                    id, displayName, position, pitch, yaw, commandList,
+                    nameplateEnabled, interactCooldownSeconds, skin
+                );
+            }
             case DataKeys.NPC_POKEMON -> {
                 String speciesStr = jsonObject.get(DataKeys.NPC_POKEMON_SPECIES).getAsString();
                 Identifier speciesIdentifier = Identifier.tryParse(speciesStr);
@@ -160,5 +166,7 @@ public abstract class NPC<E extends MobEntity> {
     public void discard() {
         entity.discard();
     }
+
+    public void sendClientUpdate(ServerPlayerEntity player) { }
 
 }
