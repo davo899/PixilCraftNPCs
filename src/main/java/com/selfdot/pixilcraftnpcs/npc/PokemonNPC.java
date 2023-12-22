@@ -24,11 +24,12 @@ public class PokemonNPC extends NPC<PokemonEntity> {
     public PokemonNPC(
         String id, String displayName, MultiversePos position, double pitch, double yaw,
         List<String> commandList, boolean nameplateEnabled, int interactCooldownSeconds,
-        long questConditionID, Species species
+        long questConditionID, boolean globallyInvisible, Species species
     ) {
         super(
             id, displayName, position, pitch, yaw, commandList,
-            nameplateEnabled, interactCooldownSeconds, questConditionID
+            nameplateEnabled, interactCooldownSeconds, questConditionID,
+            globallyInvisible
         );
         this.species = species;
     }

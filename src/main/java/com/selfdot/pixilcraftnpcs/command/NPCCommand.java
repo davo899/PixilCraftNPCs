@@ -10,6 +10,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPC;
 import com.selfdot.pixilcraftnpcs.npc.NPC;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
@@ -24,6 +26,7 @@ import net.minecraft.util.Identifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
@@ -68,12 +71,17 @@ public class NPCCommand {
                     )
                 )
             )
+            .then(LiteralArgumentBuilder.<ServerCommandSource>
+                literal("toggle")
+                .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                    argument("id", string())
+                    .suggests(this::npcIDs)
+                    .executes(this::toggleNPCGloballyInvisible)
+                )
+            )
             .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                 argument("id", string())
-                .suggests((ctx, builder) -> {
-                    NPCTracker.getInstance().getAllIDs().forEach(builder::suggest);
-                    return builder.buildFuture();
-                })
+                .suggests(this::npcIDs)
                 .then(LiteralArgumentBuilder.<ServerCommandSource>
                     literal("set")
                     .then(LiteralArgumentBuilder.<ServerCommandSource>
@@ -125,6 +133,11 @@ public class NPCCommand {
                 )
             )
         );
+    }
+
+    private CompletableFuture<Suggestions> npcIDs(CommandContext<ServerCommandSource> ctx, SuggestionsBuilder builder) {
+        NPCTracker.getInstance().getAllIDs().forEach(builder::suggest);
+        return builder.buildFuture();
     }
 
     private int newNPC(
@@ -182,6 +195,7 @@ public class NPCCommand {
                 true,
                 0,
                 -1,
+                false,
                 species
             ));
 
@@ -195,6 +209,7 @@ public class NPCCommand {
                 true,
                 0,
                 -1,
+                false,
                 new Identifier("textures/entity/player/slim/steve.png")
             ));
         }
@@ -210,6 +225,15 @@ public class NPCCommand {
             return Optional.empty();
         }
         return Optional.of(npc);
+    }
+
+    private int toggleNPCGloballyInvisible(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC<?>> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        npc.get().toggleGloballyInvisible();
+        String id = StringArgumentType.getString(ctx, "id");
+        ctx.getSource().sendMessage(Text.literal("Toggled NPC " + id));
+        return 1;
     }
 
     private int setNPCCommandList(CommandContext<ServerCommandSource> ctx) {

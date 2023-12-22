@@ -35,6 +35,7 @@ public abstract class NPC<E extends MobEntity> {
     protected boolean nameplateEnabled;
     private long interactCooldownSeconds;
     private long questConditionID;
+    private boolean globallyInvisible;
 
     public NPC(
         String id,
@@ -45,7 +46,8 @@ public abstract class NPC<E extends MobEntity> {
         List<String> commandList,
         boolean nameplateEnabled,
         int interactCooldownSeconds,
-        long questConditionID
+        long questConditionID,
+        boolean globallyInvisible
     ) {
         this.id = id;
         this.displayName = displayName;
@@ -56,6 +58,7 @@ public abstract class NPC<E extends MobEntity> {
         this.nameplateEnabled = nameplateEnabled;
         this.interactCooldownSeconds = interactCooldownSeconds;
         this.questConditionID = questConditionID;
+        this.globallyInvisible = globallyInvisible;
     }
 
     public long getInteractCooldownSeconds() {
@@ -88,6 +91,11 @@ public abstract class NPC<E extends MobEntity> {
         server.getPlayerManager().getPlayerList().forEach(this::sendQuestUpdate);
     }
 
+    public void toggleGloballyInvisible() {
+        globallyInvisible = !globallyInvisible;
+        entity.setInvisible(globallyInvisible);
+    }
+
     private void sendQuestUpdate(ServerPlayerEntity player) {
         new SetNPCVisibilityPacket(
             entity.getUuid(),
@@ -102,6 +110,7 @@ public abstract class NPC<E extends MobEntity> {
 
     public void checkInteract(PlayerEntity player, Entity entity) {
         if (this.entity != entity) return;
+        if (globallyInvisible) return;
         if (questConditionID != -1 && !FTBUtils.completedQuest(player, questConditionID)) return;
         if (!InteractCooldownTracker.getInstance().attemptInteract(player, id)) return;
 
@@ -122,6 +131,7 @@ public abstract class NPC<E extends MobEntity> {
         jsonObject.addProperty(DataKeys.NPC_NAMEPLATE_ENABLED, nameplateEnabled);
         jsonObject.addProperty(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS, interactCooldownSeconds);
         jsonObject.addProperty(DataKeys.NPC_QUEST_CONDITION_ID, questConditionID);
+        jsonObject.addProperty(DataKeys.NPC_GLOBALLY_INVISIBLE, globallyInvisible);
         return jsonObject;
     }
 
@@ -137,6 +147,7 @@ public abstract class NPC<E extends MobEntity> {
         int interactCooldownSeconds = jsonObject.get(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS).getAsInt();
         long questConditionID = jsonObject.get(DataKeys.NPC_QUEST_CONDITION_ID).getAsLong();
         String type = jsonObject.get(DataKeys.NPC_TYPE).getAsString();
+        boolean globallyInvisible = jsonObject.get(DataKeys.NPC_GLOBALLY_INVISIBLE).getAsBoolean();
         return switch (type) {
             case DataKeys.NPC_HUMAN -> {
                 String skinStr = jsonObject.get(DataKeys.NPC_HUMAN_SKIN).getAsString();
@@ -144,7 +155,8 @@ public abstract class NPC<E extends MobEntity> {
                 if (skin == null) throw new IllegalArgumentException("Failed to parse skin ID: " + skinStr);
                 yield new HumanNPC(
                     id, displayName, position, pitch, yaw, commandList,
-                    nameplateEnabled, interactCooldownSeconds, questConditionID, skin
+                    nameplateEnabled, interactCooldownSeconds, questConditionID,
+                    globallyInvisible, skin
                 );
             }
             case DataKeys.NPC_POKEMON -> {
@@ -155,7 +167,8 @@ public abstract class NPC<E extends MobEntity> {
                 if (species == null) throw new IllegalArgumentException("Unknown species " + speciesStr);
                 yield new PokemonNPC(
                     id, displayName, position, pitch, yaw, commandList,
-                    nameplateEnabled, interactCooldownSeconds, questConditionID, species
+                    nameplateEnabled, interactCooldownSeconds, questConditionID,
+                    globallyInvisible, species
                 );
             }
             default -> throw new IllegalArgumentException("NPC type was '" + type + "', must be: human, pokemon");
