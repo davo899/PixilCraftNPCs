@@ -13,6 +13,7 @@ import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.InteractionEvent;
 import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
 import dev.ftb.mods.ftbquests.events.CustomTaskEvent;
 import dev.ftb.mods.ftbquests.events.ObjectCompletedEvent;
 import dev.ftb.mods.ftbquests.events.ObjectProgressEvent;
@@ -36,6 +37,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -69,6 +71,7 @@ public class PixilCraftNPCs implements ModInitializer {
         PlayerEvent.PLAYER_JOIN.register(this::onPlayerJoin);
         InteractionEvent.INTERACT_ENTITY.register(this::onInteractEntity);
         ObjectCompletedEvent.QUEST.register(this::onQuestCompleted);
+        TickEvent.SERVER_LEVEL_PRE.register(this::onLevelTick);
 
         InteractCooldownTracker.getInstance().load();
     }
@@ -112,6 +115,10 @@ public class PixilCraftNPCs implements ModInitializer {
             player -> NPCTracker.getInstance().onQuestCompleted(player, questEvent.getQuest().id)
         );
         return EventResult.pass();
+    }
+
+    private void onLevelTick(ServerWorld world) {
+        NPCTracker.getInstance().onTick();
     }
 
 }

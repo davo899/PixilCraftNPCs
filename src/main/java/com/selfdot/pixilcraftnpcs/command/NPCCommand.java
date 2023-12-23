@@ -12,6 +12,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPC;
 import com.selfdot.pixilcraftnpcs.npc.NPC;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
@@ -37,6 +38,8 @@ public class NPCCommand {
     public void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>
             literal("npc")
+            .requires(source -> !PixilCraftNPCs.DISABLED)
+            .requires(source -> source.hasPermissionLevel(4))
             .then(LiteralArgumentBuilder.<ServerCommandSource>
                 literal("new")
                 .then(LiteralArgumentBuilder.<ServerCommandSource>
@@ -130,6 +133,13 @@ public class NPCCommand {
                             .executes(this::clearNPCQuestCondition)
                         )
                     )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("facesNearestPlayer")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Boolean>
+                            argument("facesNearestPlayer", bool())
+                            .executes(this::setNPCFacesNearestPlayer)
+                        )
+                    )
                 )
             )
         );
@@ -196,6 +206,7 @@ public class NPCCommand {
                 0,
                 -1,
                 false,
+                true,
                 species
             ));
 
@@ -210,6 +221,7 @@ public class NPCCommand {
                 0,
                 -1,
                 false,
+                true,
                 new Identifier("textures/entity/player/slim/steve.png")
             ));
         }
@@ -318,6 +330,16 @@ public class NPCCommand {
         ctx.getSource().sendMessage(Text.literal(
             "Cleared NPC " + id + "'s quest condition"
         ));
+        return 1;
+    }
+
+    private int setNPCFacesNearestPlayer(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC<?>> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        boolean facesNearestPlayer = BoolArgumentType.getBool(ctx, "facesNearestPlayer");
+        npc.get().setFacesNearestPlayer(facesNearestPlayer);
+        String id = StringArgumentType.getString(ctx, "id");
+        ctx.getSource().sendMessage(Text.literal("Set NPC " + id + " faces nearest player to " + facesNearestPlayer));
         return 1;
     }
 

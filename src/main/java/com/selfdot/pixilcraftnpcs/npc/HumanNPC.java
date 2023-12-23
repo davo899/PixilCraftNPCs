@@ -6,6 +6,7 @@ import com.selfdot.pixilcraftnpcs.network.s2c.SetHumanNPCTexturePacket;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -21,12 +22,12 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
     public HumanNPC(
         String id, String displayName, MultiversePos position, double pitch, double yaw,
         List<String> commandList, boolean nameplateEnabled, int interactCooldownSeconds,
-        long questConditionID, boolean globallyInvisible, Identifier texture
+        long questConditionID, boolean globallyInvisible, boolean facesNearestPlayer, Identifier texture
     ) {
         super(
             id, displayName, position, pitch, yaw, commandList,
             nameplateEnabled, interactCooldownSeconds, questConditionID,
-            globallyInvisible
+            globallyInvisible, facesNearestPlayer
         );
         this.texture = texture;
     }
@@ -39,6 +40,14 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
     @Override
     public HumanNPCEntity getNewEntity(ServerWorld world) {
         return PixilCraftNPCs.NPC_HUMAN.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
+    }
+
+    @Override
+    protected boolean faceNearestPlayer() {
+        PlayerEntity nearestPlayer = entity.getWorld().getClosestPlayer(entity, 5);
+        if (nearestPlayer == null) return false;
+        entity.getLookControl().lookAt(nearestPlayer);
+        return true;
     }
 
     private void sendTextureUpdate(ServerPlayerEntity player) {

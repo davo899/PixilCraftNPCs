@@ -41,7 +41,7 @@ public class NPCTracker {
     }
 
     public void discardAllNPCEntities() {
-        npcs.values().forEach(NPC::discard);
+        npcs.values().forEach(NPC::remove);
     }
 
     public void sendClientUpdates(ServerPlayerEntity player) {
@@ -67,6 +67,10 @@ public class NPCTracker {
 
     public void checkInteract(PlayerEntity player, Entity entity) {
         npcs.values().forEach(npc -> npc.checkInteract(player, entity));
+    }
+
+    public void onTick() {
+        npcs.values().forEach(NPC::tick);
     }
 
     public void load() {
