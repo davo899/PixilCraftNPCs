@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -69,8 +70,8 @@ public class NPCTracker {
         npcs.values().forEach(npc -> npc.checkInteract(player, entity));
     }
 
-    public void onTick() {
-        npcs.values().forEach(NPC::tick);
+    public void onTick(ServerWorld world) {
+        npcs.values().forEach(npc -> npc.tick(world));
     }
 
     public void load() {

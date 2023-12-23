@@ -2,8 +2,10 @@ package com.selfdot.pixilcraftnpcs.command;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
 import com.cobblemon.mod.common.pokemon.Species;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -30,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
+import static com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg;
 import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 
@@ -140,6 +143,13 @@ public class NPCCommand {
                             .executes(this::setNPCFacesNearestPlayer)
                         )
                     )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("proximityTriggerRadius")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
+                            argument("proximityTriggerRadius", doubleArg())
+                            .executes(this::setNPCProximityTriggerRadius)
+                        )
+                    )
                 )
             )
         );
@@ -207,6 +217,7 @@ public class NPCCommand {
                 -1,
                 false,
                 true,
+                0,
                 species
             ));
 
@@ -222,6 +233,7 @@ public class NPCCommand {
                 -1,
                 false,
                 true,
+                0,
                 new Identifier("textures/entity/player/slim/steve.png")
             ));
         }
@@ -339,7 +351,21 @@ public class NPCCommand {
         boolean facesNearestPlayer = BoolArgumentType.getBool(ctx, "facesNearestPlayer");
         npc.get().setFacesNearestPlayer(facesNearestPlayer);
         String id = StringArgumentType.getString(ctx, "id");
-        ctx.getSource().sendMessage(Text.literal("Set NPC " + id + " faces nearest player to " + facesNearestPlayer));
+        ctx.getSource().sendMessage(Text.literal(
+            "Set NPC " + id + " faces nearest player to " + facesNearestPlayer
+        ));
+        return 1;
+    }
+
+    private int setNPCProximityTriggerRadius(CommandContext<ServerCommandSource> ctx) {
+        Optional<NPC<?>> npc = getNPC(ctx);
+        if (npc.isEmpty()) return -1;
+        double proximityTriggerRadius = DoubleArgumentType.getDouble(ctx, "proximityTriggerRadius");
+        npc.get().setProximityTriggerRadius(proximityTriggerRadius);
+        String id = StringArgumentType.getString(ctx, "id");
+        ctx.getSource().sendMessage(Text.literal(
+            "Set NPC " + id + "'s proximity trigger radius to " + proximityTriggerRadius
+        ));
         return 1;
     }
 

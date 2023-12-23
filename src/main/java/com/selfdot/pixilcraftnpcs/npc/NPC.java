@@ -40,6 +40,7 @@ public abstract class NPC<E extends MobEntity> {
     private long questConditionID;
     private boolean globallyInvisible;
     protected boolean facesNearestPlayer;
+    private double proximityTriggerRadius;
 
     public NPC(
         String id,
@@ -52,7 +53,8 @@ public abstract class NPC<E extends MobEntity> {
         int interactCooldownSeconds,
         long questConditionID,
         boolean globallyInvisible,
-        boolean facesNearestPlayer
+        boolean facesNearestPlayer,
+        double proximityTriggerRadius
     ) {
         this.id = id;
         this.displayName = displayName;
@@ -65,6 +67,7 @@ public abstract class NPC<E extends MobEntity> {
         this.questConditionID = questConditionID;
         this.globallyInvisible = globallyInvisible;
         this.facesNearestPlayer = facesNearestPlayer;
+        this.proximityTriggerRadius = proximityTriggerRadius;
     }
 
     public long getInteractCooldownSeconds() {
@@ -107,8 +110,18 @@ public abstract class NPC<E extends MobEntity> {
         updateFacing();
     }
 
-    public void tick() {
+    public void setProximityTriggerRadius(double proximityTriggerRadius) {
+        this.proximityTriggerRadius = proximityTriggerRadius;
+    }
+
+    public void tick(ServerWorld world) {
         updateFacing();
+
+        if (proximityTriggerRadius == 0) return;
+        if (world != entity.getWorld()) return;
+        world.getPlayers().stream()
+            .filter(player -> player.squaredDistanceTo(entity) < (proximityTriggerRadius * proximityTriggerRadius))
+            .forEach(player -> checkInteract(player, false));
     }
 
     protected void updateFacing() {
@@ -139,9 +152,13 @@ public abstract class NPC<E extends MobEntity> {
 
     public void checkInteract(PlayerEntity player, Entity entity) {
         if (this.entity != entity) return;
+        checkInteract(player, true);
+    }
+
+    private void checkInteract(PlayerEntity player, boolean shouldPrintCooldown) {
         if (globallyInvisible) return;
         if (questConditionID != -1 && !FTBUtils.completedQuest(player, questConditionID)) return;
-        if (!InteractCooldownTracker.getInstance().attemptInteract(player, id)) return;
+        if (!InteractCooldownTracker.getInstance().attemptInteract(player, id, shouldPrintCooldown)) return;
 
         commandList.forEach(
             command -> CommandUtils.executeCommandAsServer(command, Objects.requireNonNull(player.getServer()))
@@ -178,6 +195,7 @@ public abstract class NPC<E extends MobEntity> {
         jsonObject.addProperty(DataKeys.NPC_QUEST_CONDITION_ID, questConditionID);
         jsonObject.addProperty(DataKeys.NPC_GLOBALLY_INVISIBLE, globallyInvisible);
         jsonObject.addProperty(DataKeys.NPC_FACES_NEAREST_PLAYER, facesNearestPlayer);
+        jsonObject.addProperty(DataKeys.NPC_PROXIMITY_TRIGGER_RADIUS, proximityTriggerRadius);
         return jsonObject;
     }
 
@@ -195,6 +213,7 @@ public abstract class NPC<E extends MobEntity> {
         String type = jsonObject.get(DataKeys.NPC_TYPE).getAsString();
         boolean globallyInvisible = jsonObject.get(DataKeys.NPC_GLOBALLY_INVISIBLE).getAsBoolean();
         boolean facesNearestPlayer = jsonObject.get(DataKeys.NPC_FACES_NEAREST_PLAYER).getAsBoolean();
+        double proximityTriggerRadius = jsonObject.get(DataKeys.NPC_PROXIMITY_TRIGGER_RADIUS).getAsDouble();
         return switch (type) {
             case DataKeys.NPC_HUMAN -> {
                 String skinStr = jsonObject.get(DataKeys.NPC_HUMAN_SKIN).getAsString();
@@ -203,7 +222,7 @@ public abstract class NPC<E extends MobEntity> {
                 yield new HumanNPC(
                     id, displayName, position, pitch, yaw, commandList,
                     nameplateEnabled, interactCooldownSeconds, questConditionID,
-                    globallyInvisible, facesNearestPlayer, skin
+                    globallyInvisible, facesNearestPlayer, proximityTriggerRadius, skin
                 );
             }
             case DataKeys.NPC_POKEMON -> {
@@ -215,7 +234,7 @@ public abstract class NPC<E extends MobEntity> {
                 yield new PokemonNPC(
                     id, displayName, position, pitch, yaw, commandList,
                     nameplateEnabled, interactCooldownSeconds, questConditionID,
-                    globallyInvisible, facesNearestPlayer, species
+                    globallyInvisible, facesNearestPlayer, proximityTriggerRadius, species
                 );
             }
             default -> throw new IllegalArgumentException("NPC type was '" + type + "', must be: human, pokemon");

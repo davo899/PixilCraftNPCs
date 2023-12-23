@@ -22,12 +22,13 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
     public HumanNPC(
         String id, String displayName, MultiversePos position, double pitch, double yaw,
         List<String> commandList, boolean nameplateEnabled, int interactCooldownSeconds,
-        long questConditionID, boolean globallyInvisible, boolean facesNearestPlayer, Identifier texture
+        long questConditionID, boolean globallyInvisible, boolean facesNearestPlayer,
+        double proximityTriggerRadius, Identifier texture
     ) {
         super(
             id, displayName, position, pitch, yaw, commandList,
             nameplateEnabled, interactCooldownSeconds, questConditionID,
-            globallyInvisible, facesNearestPlayer
+            globallyInvisible, facesNearestPlayer, proximityTriggerRadius
         );
         this.texture = texture;
     }

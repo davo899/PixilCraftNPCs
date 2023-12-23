@@ -28,41 +28,39 @@ public class InteractCooldownTracker {
     private static final String FILENAME = "pixilcraftnpcs/lastInteracted.json";
     private final Map<UUID, Map<String, Long>> lastInteractedMap = new HashMap<>();
 
-    private void putInteract(UUID player, String npcID) {
-        putInteract(player, npcID, System.currentTimeMillis() / 1000L);
-    }
-
     private void putInteract(UUID player, String npcID, Long now) {
         if (!lastInteractedMap.containsKey(player)) lastInteractedMap.put(player, new HashMap<>());
         lastInteractedMap.get(player).put(npcID, now);
     }
 
-    public boolean attemptInteract(PlayerEntity player, String npcID) {
-        NPC npc = NPCTracker.getInstance().get(npcID);
+    public boolean attemptInteract(PlayerEntity player, String npcID, boolean shouldPrintCooldown) {
+        NPC<?> npc = NPCTracker.getInstance().get(npcID);
         if (npc == null) return false;
         if (npc.getInteractCooldownSeconds() == 0) return true;
 
+        Long now = System.currentTimeMillis();
         if (!lastInteractedMap.containsKey(player.getUuid())) {
-            putInteract(player.getUuid(), npcID);
+            putInteract(player.getUuid(), npcID, now);
             return true;
         }
 
         Map<String, Long> interactions = lastInteractedMap.get(player.getUuid());
         if (!interactions.containsKey(npcID)) {
-            putInteract(player.getUuid(), npcID);
+            putInteract(player.getUuid(), npcID, now);
             return true;
         }
 
         Long lastInteraction = interactions.get(npcID);
-        Long now = System.currentTimeMillis() / 1000L;
-        if (now - lastInteraction > npc.getInteractCooldownSeconds()) {
+        if (now - lastInteraction >= npc.getInteractCooldownSeconds() * 1000) {
             putInteract(player.getUuid(), npcID, now);
             return true;
 
         } else {
-            player.sendMessage(Text.literal("Cannot interact with this NPC for another " + (
-                npc.getInteractCooldownSeconds() - (now - lastInteraction)
-            ) + " seconds"));
+            if (shouldPrintCooldown) {
+                player.sendMessage(Text.literal("Cannot interact with this NPC for another " + (
+                    npc.getInteractCooldownSeconds() - ((now - lastInteraction) / 1000)
+                ) + " seconds"));
+            }
             return false;
         }
     }

@@ -118,7 +118,7 @@ public class PixilCraftNPCs implements ModInitializer {
     }
 
     private void onLevelTick(ServerWorld world) {
-        NPCTracker.getInstance().onTick();
+        NPCTracker.getInstance().onTick(world);
     }
 
 }
