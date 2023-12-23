@@ -3,7 +3,6 @@ package com.selfdot.pixilcraftnpcs.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public record MultiversePos(Vec3d pos, Identifier worldID) {

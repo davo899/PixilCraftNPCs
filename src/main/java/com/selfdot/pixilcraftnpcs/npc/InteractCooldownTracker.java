@@ -6,7 +6,6 @@ import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.io.FileNotFoundException;
