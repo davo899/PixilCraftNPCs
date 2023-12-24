@@ -25,6 +25,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class NPC<E extends MobEntity> {
 
@@ -33,45 +34,25 @@ public abstract class NPC<E extends MobEntity> {
     protected abstract boolean faceNearestPlayer();
 
     private final String id;
-    protected String displayName;
     private final MultiversePos position;
     private final double pitch;
     private final double yaw;
-    private List<String> commandList;
-    protected boolean nameplateEnabled;
-    private long interactCooldownSeconds;
-    private long questConditionID;
-    private boolean globallyInvisible;
-    protected boolean facesNearestPlayer;
-    private double proximityTriggerRadius;
+    protected String displayName;
+    private List<String> commandList = new ArrayList<>();
+    protected boolean nameplateEnabled = true;
+    private long interactCooldownSeconds = 0;
+    private long questConditionID = -1;
+    private boolean globallyInvisible = false;
+    protected boolean facesNearestPlayer = false;
+    private double proximityTriggerRadius = 0;
     protected boolean entityLoaded = false;
 
-    public NPC(
-        String id,
-        String displayName,
-        MultiversePos position,
-        double pitch,
-        double yaw,
-        List<String> commandList,
-        boolean nameplateEnabled,
-        int interactCooldownSeconds,
-        long questConditionID,
-        boolean globallyInvisible,
-        boolean facesNearestPlayer,
-        double proximityTriggerRadius
-    ) {
+    public NPC(String id, MultiversePos position, double pitch, double yaw) {
         this.id = id;
-        this.displayName = displayName;
+        this.displayName = id;
         this.position = position;
         this.pitch = pitch;
         this.yaw = yaw;
-        this.commandList = commandList;
-        this.nameplateEnabled = nameplateEnabled;
-        this.interactCooldownSeconds = interactCooldownSeconds;
-        this.questConditionID = questConditionID;
-        this.globallyInvisible = globallyInvisible;
-        this.facesNearestPlayer = facesNearestPlayer;
-        this.proximityTriggerRadius = proximityTriggerRadius;
     }
 
     public long getInteractCooldownSeconds() {
@@ -227,29 +208,16 @@ public abstract class NPC<E extends MobEntity> {
 
     public static NPC<?> fromJson(String id, JsonElement jsonElement) {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        String displayName = jsonObject.get(DataKeys.NPC_DISPLAY_NAME).getAsString();
         MultiversePos position = MultiversePos.fromJson(jsonObject.get(DataKeys.NPC_POSITION));
         double pitch = jsonObject.get(DataKeys.NPC_PITCH).getAsDouble();
         double yaw = jsonObject.get(DataKeys.NPC_YAW).getAsDouble();
-        List<String> commandList = new ArrayList<>();
-        jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).forEach(command -> commandList.add(command.getAsString()));
-        boolean nameplateEnabled = jsonObject.get(DataKeys.NPC_NAMEPLATE_ENABLED).getAsBoolean();
-        int interactCooldownSeconds = jsonObject.get(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS).getAsInt();
-        long questConditionID = jsonObject.get(DataKeys.NPC_QUEST_CONDITION_ID).getAsLong();
         String type = jsonObject.get(DataKeys.NPC_TYPE).getAsString();
-        boolean globallyInvisible = jsonObject.get(DataKeys.NPC_GLOBALLY_INVISIBLE).getAsBoolean();
-        boolean facesNearestPlayer = jsonObject.get(DataKeys.NPC_FACES_NEAREST_PLAYER).getAsBoolean();
-        double proximityTriggerRadius = jsonObject.get(DataKeys.NPC_PROXIMITY_TRIGGER_RADIUS).getAsDouble();
-        return switch (type) {
+        NPC<?> npc = switch (type) {
             case DataKeys.NPC_HUMAN -> {
                 String skinStr = jsonObject.get(DataKeys.NPC_HUMAN_SKIN).getAsString();
                 Identifier skin = Identifier.tryParse(skinStr);
                 if (skin == null) throw new IllegalArgumentException("Failed to parse skin ID: " + skinStr);
-                yield new HumanNPC(
-                    id, displayName, position, pitch, yaw, commandList,
-                    nameplateEnabled, interactCooldownSeconds, questConditionID,
-                    globallyInvisible, facesNearestPlayer, proximityTriggerRadius, skin
-                );
+                yield new HumanNPC(id, position, pitch, yaw, skin);
             }
             case DataKeys.NPC_POKEMON -> {
                 String speciesStr = jsonObject.get(DataKeys.NPC_POKEMON_SPECIES).getAsString();
@@ -257,14 +225,20 @@ public abstract class NPC<E extends MobEntity> {
                 if (speciesIdentifier == null) throw new IllegalArgumentException("Invalid species ID " + speciesStr);
                 Species species = PokemonSpecies.INSTANCE.getByIdentifier(speciesIdentifier);
                 if (species == null) throw new IllegalArgumentException("Unknown species " + speciesStr);
-                yield new PokemonNPC(
-                    id, displayName, position, pitch, yaw, commandList,
-                    nameplateEnabled, interactCooldownSeconds, questConditionID,
-                    globallyInvisible, facesNearestPlayer, proximityTriggerRadius, species
-                );
+                yield new PokemonNPC(id, position, pitch, yaw, species);
             }
             default -> throw new IllegalArgumentException("NPC type was '" + type + "', must be: human, pokemon");
         };
+        npc.displayName = jsonObject.get(DataKeys.NPC_DISPLAY_NAME).getAsString();
+        npc.commandList = jsonObject.getAsJsonArray(DataKeys.NPC_COMMAND_LIST).asList().stream()
+            .map(JsonElement::getAsString).collect(Collectors.toList());
+        npc.nameplateEnabled = jsonObject.get(DataKeys.NPC_NAMEPLATE_ENABLED).getAsBoolean();
+        npc.interactCooldownSeconds = jsonObject.get(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS).getAsInt();
+        npc.questConditionID = jsonObject.get(DataKeys.NPC_QUEST_CONDITION_ID).getAsLong();
+        npc.globallyInvisible = jsonObject.get(DataKeys.NPC_GLOBALLY_INVISIBLE).getAsBoolean();
+        npc.facesNearestPlayer = jsonObject.get(DataKeys.NPC_FACES_NEAREST_PLAYER).getAsBoolean();
+        npc.proximityTriggerRadius = jsonObject.get(DataKeys.NPC_PROXIMITY_TRIGGER_RADIUS).getAsDouble();
+        return npc;
     }
 
 }

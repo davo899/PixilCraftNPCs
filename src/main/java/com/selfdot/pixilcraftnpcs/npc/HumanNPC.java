@@ -19,18 +19,13 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
 
     private Identifier texture;
 
-    public HumanNPC(
-        String id, String displayName, MultiversePos position, double pitch, double yaw,
-        List<String> commandList, boolean nameplateEnabled, int interactCooldownSeconds,
-        long questConditionID, boolean globallyInvisible, boolean facesNearestPlayer,
-        double proximityTriggerRadius, Identifier texture
-    ) {
-        super(
-            id, displayName, position, pitch, yaw, commandList,
-            nameplateEnabled, interactCooldownSeconds, questConditionID,
-            globallyInvisible, facesNearestPlayer, proximityTriggerRadius
-        );
+    public HumanNPC(String id, MultiversePos position, double pitch, double yaw, Identifier texture) {
+        super(id, position, pitch, yaw);
         this.texture = texture;
+    }
+
+    public HumanNPC(String id, MultiversePos position, double pitch, double yaw) {
+        this(id, position, pitch, yaw, new Identifier("textures/entity/player/slim/steve.png"));
     }
 
     public void setTexture(Identifier texture, MinecraftServer server) {
