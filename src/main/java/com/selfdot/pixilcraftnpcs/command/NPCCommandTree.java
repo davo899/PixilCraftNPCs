@@ -58,6 +58,14 @@ public class NPCCommandTree {
                     .executes(new ToggleGloballyVisibleCommand())
                 )
             )
+            .then(LiteralArgumentBuilder.<ServerCommandSource>
+                literal("delete")
+                .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                    argument("id", string())
+                    .suggests(new NPCIDSuggestionProvider())
+                    .executes(new DeleteNPCCommand())
+                )
+            )
             .then(RequiredArgumentBuilder.<ServerCommandSource, String>
                 argument("id", string())
                 .suggests(new NPCIDSuggestionProvider())

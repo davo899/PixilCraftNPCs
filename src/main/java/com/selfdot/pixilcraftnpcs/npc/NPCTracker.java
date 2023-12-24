@@ -66,6 +66,11 @@ public class NPCTracker {
         return npcs.containsKey(id);
     }
 
+    public void delete(String id) {
+        NPC<?> npc = npcs.remove(id);
+        if (npc != null) npc.remove(server);
+    }
+
     public void checkInteract(PlayerEntity player, Entity entity) {
         npcs.values().forEach(npc -> npc.checkInteract(player, entity));
     }

@@ -32,6 +32,10 @@ public class InteractCooldownTracker {
         lastInteractedMap.get(player).put(npcID, now);
     }
 
+    public void deleteNPC(String id) {
+        lastInteractedMap.values().forEach(npcMap -> npcMap.remove(id));
+    }
+
     public boolean attemptInteract(PlayerEntity player, String npcID, boolean shouldPrintCooldown) {
         NPC<?> npc = NPCTracker.getInstance().get(npcID);
         if (npc == null) return false;
