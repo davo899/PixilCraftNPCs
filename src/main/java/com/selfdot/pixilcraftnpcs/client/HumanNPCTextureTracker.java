@@ -23,7 +23,6 @@ public class HumanNPCTextureTracker {
     }
 
     public void putTexture(UUID entityID, Identifier texture) {
-        System.out.println(entityID + " " + texture);
         textureMap.put(entityID, texture);
     }
 

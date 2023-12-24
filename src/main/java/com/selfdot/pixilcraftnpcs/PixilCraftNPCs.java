@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import com.selfdot.pixilcraftnpcs.command.CommandListArgumentType;
-import com.selfdot.pixilcraftnpcs.command.NPCCommand;
+import com.selfdot.pixilcraftnpcs.command.NPCCommandTree;
 import com.selfdot.pixilcraftnpcs.npc.InteractCooldownTracker;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPCEntity;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
@@ -79,7 +79,7 @@ public class PixilCraftNPCs implements ModInitializer {
         CommandRegistryAccess commandRegistryAccess,
         CommandManager.RegistrationEnvironment registrationEnvironment
     ) {
-        new NPCCommand().register(dispatcher);
+        new NPCCommandTree().register(dispatcher);
     }
 
     private void onServerStarted(MinecraftServer server) {

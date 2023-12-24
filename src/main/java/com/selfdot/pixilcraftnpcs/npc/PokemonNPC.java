@@ -87,6 +87,12 @@ public class PokemonNPC extends NPC<PokemonEntity> {
     }
 
     @Override
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+        entity.setCustomName(Text.literal(displayName));
+    }
+
+    @Override
     public void setNameplateEnabled(boolean nameplateEnabled) {
         this.nameplateEnabled = nameplateEnabled;
         entity.getHideLabel().set(!nameplateEnabled);
