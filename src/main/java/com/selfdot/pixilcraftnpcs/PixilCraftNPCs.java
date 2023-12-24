@@ -52,6 +52,7 @@ public class PixilCraftNPCs implements ModInitializer {
             .disableSummon()
             .build()
     );
+    public static PixilCraftNPCsConfig CONFIG = new PixilCraftNPCsConfig();
 
     @Override
     public void onInitialize() {
@@ -82,6 +83,7 @@ public class PixilCraftNPCs implements ModInitializer {
     }
 
     private void onServerStarted(MinecraftServer server) {
+        CONFIG.reload(server);
         NPCTracker.getInstance().load();
         NPCTracker.getInstance().setServer(server);
         NPCTracker.getInstance().summonAllNPCEntities();

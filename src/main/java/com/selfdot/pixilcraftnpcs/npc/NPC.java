@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.pokemon.Species;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
 import com.selfdot.pixilcraftnpcs.util.CommandUtils;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
@@ -18,6 +19,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,7 @@ public abstract class NPC<E extends MobEntity> {
     private boolean globallyInvisible;
     protected boolean facesNearestPlayer;
     private double proximityTriggerRadius;
+    private boolean entityLoaded = false;
 
     public NPC(
         String id,
@@ -115,10 +118,27 @@ public abstract class NPC<E extends MobEntity> {
     }
 
     public void tick(ServerWorld world) {
+        if (!world.getRegistryKey().getValue().equals(position.worldID())) return;
         updateFacing();
+        checkShouldLoadEntity(world);
+        checkProximityTrigger(world);
+    }
 
+    public void checkShouldLoadEntity(ServerWorld world) {
+        Vec3d pos = position.pos();
+        if (
+            world.getClosestPlayer(
+                pos.x, pos.y, pos.z, PixilCraftNPCs.CONFIG.getMinDespawnDistance(), null
+            ) == null
+        ) {
+            if (entityLoaded) remove();
+        } else {
+            if (!entityLoaded) spawn(world.getServer());
+        }
+    }
+
+    public void checkProximityTrigger(ServerWorld world) {
         if (proximityTriggerRadius == 0) return;
-        if (world != entity.getWorld()) return;
         world.getPlayers().stream()
             .filter(player -> player.squaredDistanceTo(entity) < (proximityTriggerRadius * proximityTriggerRadius))
             .forEach(player -> checkInteract(player, false));
@@ -141,6 +161,7 @@ public abstract class NPC<E extends MobEntity> {
                 updateFacing();
                 setDisplayName(displayName);
                 setNameplateEnabled(nameplateEnabled);
+                entityLoaded = true;
                 return;
             }
         }
@@ -148,6 +169,7 @@ public abstract class NPC<E extends MobEntity> {
 
     public void remove() {
         if (entity != null) entity.discard();
+        entityLoaded = false;
     }
 
     public void checkInteract(PlayerEntity player, Entity entity) {
