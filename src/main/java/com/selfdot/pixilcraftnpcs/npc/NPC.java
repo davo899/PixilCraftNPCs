@@ -34,7 +34,7 @@ public abstract class NPC<E extends MobEntity> {
     protected abstract boolean faceNearestPlayer();
 
     private final String id;
-    private final MultiversePos position;
+    private MultiversePos position;
     private final double pitch;
     private final double yaw;
     protected String displayName;
@@ -61,6 +61,11 @@ public abstract class NPC<E extends MobEntity> {
 
     public void setCommandList(List<String> commandList) {
         this.commandList = commandList;
+    }
+
+    public void setPosition(MultiversePos position, MinecraftServer server) {
+        this.position = position;
+        remove(server);
     }
 
     public void setDisplayName(String displayName) {
@@ -101,9 +106,9 @@ public abstract class NPC<E extends MobEntity> {
 
     public void tick(ServerWorld world) {
         if (!world.getRegistryKey().getValue().equals(position.worldID())) return;
-        updateFacing();
         checkShouldLoadEntity(world);
         checkProximityTrigger(world);
+        updateFacing();
     }
 
     public void checkShouldLoadEntity(ServerWorld world) {
@@ -127,7 +132,7 @@ public abstract class NPC<E extends MobEntity> {
     }
 
     protected void updateFacing() {
-        if (!facesNearestPlayer || !faceNearestPlayer()) {
+        if (entityLoaded && (!facesNearestPlayer || !faceNearestPlayer())) {
             entity.setBodyYaw((float)yaw);
             entity.setHeadYaw((float)yaw);
             entity.setPitch((float)pitch);
@@ -140,7 +145,6 @@ public abstract class NPC<E extends MobEntity> {
                 entity = getNewEntity(world);
                 if (entity == null) return;
                 entity.setPosition(position.pos());
-                updateFacing();
                 setDisplayName(displayName);
                 setNameplateEnabled(nameplateEnabled);
                 entityLoaded = true;

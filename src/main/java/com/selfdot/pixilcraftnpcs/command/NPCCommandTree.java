@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.Identifier;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import static com.mojang.brigadier.arguments.BoolArgumentType.bool;
 import static com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg;
 import static com.mojang.brigadier.arguments.LongArgumentType.longArg;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
+import static net.minecraft.command.argument.IdentifierArgumentType.identifier;
 
 public class NPCCommandTree {
 
@@ -133,6 +135,23 @@ public class NPCCommandTree {
                         .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
                             argument("proximityTriggerRadius", doubleArg())
                             .executes(new SetProximityTriggerRadiusCommand())
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("position")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
+                            argument("x", doubleArg())
+                            .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
+                                argument("y", doubleArg())
+                                .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
+                                    argument("z", doubleArg())
+                                    .then(RequiredArgumentBuilder.<ServerCommandSource, Identifier>
+                                        argument("worldID", identifier())
+                                        .suggests(new WorldIDSuggestionProvider())
+                                        .executes(new SetPositionCommand())
+                                    )
+                                )
+                            )
                         )
                     )
                 )
