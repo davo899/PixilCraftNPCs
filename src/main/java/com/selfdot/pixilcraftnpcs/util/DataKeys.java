@@ -4,6 +4,8 @@ public class DataKeys {
 
     public static final String PIXILCRAFT_NAMESPACE = "pixilcraftnpcs";
 
+    public static final String PLAYER_TOKEN = "%player%";
+
     public static final String NPC_DISPLAY_NAME = "displayName";
     public static final String NPC_COMMAND_LIST = "commandList";
     public static final String NPC_POSITION = "position";

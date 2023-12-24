@@ -13,8 +13,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.List;
-
 public class HumanNPC extends NPC<HumanNPCEntity> {
 
     private Identifier texture;

@@ -8,10 +8,7 @@ import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.network.s2c.ClearNPCEntityPacket;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
-import com.selfdot.pixilcraftnpcs.util.CommandUtils;
-import com.selfdot.pixilcraftnpcs.util.DataKeys;
-import com.selfdot.pixilcraftnpcs.util.FTBUtils;
-import com.selfdot.pixilcraftnpcs.util.MultiversePos;
+import com.selfdot.pixilcraftnpcs.util.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -59,6 +56,10 @@ public abstract class NPC<E extends MobEntity> {
         return interactCooldownSeconds;
     }
 
+    protected Text formattedDisplayName() {
+        return Text.literal(ChatColourUtils.format(displayName));
+    }
+
     public void setCommandList(List<String> commandList) {
         this.commandList = commandList;
     }
@@ -78,14 +79,14 @@ public abstract class NPC<E extends MobEntity> {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-        if (nameplateEnabled) entity.setCustomName(Text.literal(displayName));
+        if (nameplateEnabled) entity.setCustomName(formattedDisplayName());
     }
 
     public void setNameplateEnabled(boolean nameplateEnabled) {
         this.nameplateEnabled = nameplateEnabled;
 
         entity.setCustomNameVisible(nameplateEnabled);
-        if (nameplateEnabled) entity.setCustomName(Text.literal(displayName));
+        if (nameplateEnabled) entity.setCustomName(formattedDisplayName());
         else entity.setCustomName(null);
     }
 

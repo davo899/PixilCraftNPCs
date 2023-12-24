@@ -18,8 +18,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.List;
-
 public class PokemonNPC extends NPC<PokemonEntity> {
 
     private final Species species;
@@ -41,7 +39,7 @@ public class PokemonNPC extends NPC<PokemonEntity> {
         entity.setInvulnerable(true);
         entity.getLabelLevel$common().set(0);
         entity.getUnbattleable().set(true);
-        entity.setCustomName(Text.literal(displayName));
+        entity.setCustomName(formattedDisplayName());
         entity.getNicknameVisible().set(true);
         ((IPokemonEntityMixin)(Object)entity).pixilCraftNPCs$setNPC(true);
         entity.getLabelLevel$common().subscribe(
@@ -80,7 +78,7 @@ public class PokemonNPC extends NPC<PokemonEntity> {
     @Override
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-        entity.setCustomName(Text.literal(displayName));
+        entity.setCustomName(formattedDisplayName());
     }
 
     @Override
