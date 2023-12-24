@@ -180,7 +180,10 @@ public abstract class NPC<E extends MobEntity> {
         if (!InteractCooldownTracker.getInstance().attemptInteract(player, id, shouldPrintCooldown)) return;
 
         commandList.forEach(
-            command -> CommandUtils.executeCommandAsServer(command, Objects.requireNonNull(player.getServer()))
+            command -> CommandUtils.executeCommandAsServer(
+                ChatColourUtils.replaceTokens(command, player),
+                Objects.requireNonNull(player.getServer())
+            )
         );
     }
 

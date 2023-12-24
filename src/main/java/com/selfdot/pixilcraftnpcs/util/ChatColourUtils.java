@@ -1,6 +1,6 @@
 package com.selfdot.pixilcraftnpcs.util;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 
 import static net.minecraft.util.Formatting.*;
 
@@ -26,7 +26,7 @@ public class ChatColourUtils {
             .replace("&O", "" + ITALIC).replace("&R", "" + RESET);
     }
 
-    public static String replaceTokens(String string, ServerPlayerEntity player) {
+    public static String replaceTokens(String string, PlayerEntity player) {
         return string.replaceAll(DataKeys.PLAYER_TOKEN, player.getDisplayName().getString());
     }
 
