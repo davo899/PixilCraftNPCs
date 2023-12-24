@@ -77,6 +77,10 @@ public class NPCCommandTree {
                             argument("commandList", new CommandListArgumentType())
                             .executes(new SetCommandListCommand())
                         )
+                        .then(LiteralArgumentBuilder.<ServerCommandSource>
+                            literal("none")
+                            .executes(new ClearCommandListCommand())
+                        )
                     )
                     .then(LiteralArgumentBuilder.<ServerCommandSource>
                         literal("displayName")
