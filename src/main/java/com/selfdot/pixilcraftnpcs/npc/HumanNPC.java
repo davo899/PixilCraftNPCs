@@ -58,7 +58,7 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
     @Override
     public void sendClientUpdate(ServerPlayerEntity player) {
         super.sendClientUpdate(player);
-        sendTextureUpdate(player);
+        if (entityLoaded) sendTextureUpdate(player);
     }
 
     @Override

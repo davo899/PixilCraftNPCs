@@ -23,6 +23,17 @@ public class PixilCraftNPCsClientPacketHandler {
         HumanNPCTextureTracker.getInstance().putTexture(npcEntityID, texture);
     }
 
+    public void onClearNPCEntity(
+        MinecraftClient client,
+        ClientPlayNetworkHandler handler,
+        PacketByteBuf buf,
+        PacketSender responseSender
+    ) {
+        UUID npcEntityID = buf.readUuid();
+        HumanNPCTextureTracker.getInstance().clearTexture(npcEntityID);
+        NPCVisibilityTracker.getInstance().clearVisibility(npcEntityID);
+    }
+
     public void onSetNPCVisibility(
         MinecraftClient client,
         ClientPlayNetworkHandler handler,

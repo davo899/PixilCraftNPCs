@@ -41,8 +41,8 @@ public class NPCTracker {
         npcs.values().forEach(npc -> npc.spawn(server));
     }
 
-    public void discardAllNPCEntities() {
-        npcs.values().forEach(NPC::remove);
+    public void discardAllNPCEntities(MinecraftServer server) {
+        npcs.values().forEach(npc -> npc.remove(server));
     }
 
     public void sendClientUpdates(ServerPlayerEntity player) {
@@ -86,7 +86,7 @@ public class NPCTracker {
 
             } catch (Exception e) {
                 PixilCraftNPCs.DISABLED = true;
-                npcs.values().forEach(NPC::remove);
+                npcs.values().forEach(npc -> npc.remove(server));
                 PixilCraftNPCs.LOGGER.error("An exception occurred when loading NPC data:");
                 PixilCraftNPCs.LOGGER.error(e.getMessage());
             }

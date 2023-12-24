@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.network.s2c.ClearNPCEntityPacket;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
 import com.selfdot.pixilcraftnpcs.util.CommandUtils;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
@@ -43,7 +44,7 @@ public abstract class NPC<E extends MobEntity> {
     private boolean globallyInvisible;
     protected boolean facesNearestPlayer;
     private double proximityTriggerRadius;
-    private boolean entityLoaded = false;
+    protected boolean entityLoaded = false;
 
     public NPC(
         String id,
@@ -131,7 +132,7 @@ public abstract class NPC<E extends MobEntity> {
                 pos.x, pos.y, pos.z, PixilCraftNPCs.CONFIG.getMinDespawnDistance(), null
             ) == null
         ) {
-            if (entityLoaded) remove();
+            if (entityLoaded) remove(world.getServer());
         } else {
             if (!entityLoaded) spawn(world.getServer());
         }
@@ -162,14 +163,16 @@ public abstract class NPC<E extends MobEntity> {
                 setDisplayName(displayName);
                 setNameplateEnabled(nameplateEnabled);
                 entityLoaded = true;
+                server.getPlayerManager().getPlayerList().forEach(this::sendClientUpdate);
                 return;
             }
         }
     }
 
-    public void remove() {
+    public void remove(MinecraftServer server) {
         if (entity != null) entity.discard();
         entityLoaded = false;
+        server.getPlayerManager().getPlayerList().forEach(this::sendClientUpdate);
     }
 
     public void checkInteract(PlayerEntity player, Entity entity) {
@@ -188,7 +191,8 @@ public abstract class NPC<E extends MobEntity> {
     }
 
     public void sendClientUpdate(ServerPlayerEntity player) {
-        sendQuestUpdate(player);
+        if (entityLoaded) sendQuestUpdate(player);
+        else new ClearNPCEntityPacket(entity.getUuid()).sendS2C(player);
     }
 
     private void sendQuestUpdate(ServerPlayerEntity player) {

@@ -84,13 +84,13 @@ public class PixilCraftNPCs implements ModInitializer {
 
     private void onServerStarted(MinecraftServer server) {
         CONFIG.reload(server);
-        NPCTracker.getInstance().load();
         NPCTracker.getInstance().setServer(server);
+        NPCTracker.getInstance().load();
         NPCTracker.getInstance().summonAllNPCEntities();
     }
 
     private void onServerStopping(MinecraftServer server) {
-        NPCTracker.getInstance().discardAllNPCEntities();
+        NPCTracker.getInstance().discardAllNPCEntities(server);
 
         if (!DISABLED) {
             NPCTracker.getInstance().save();

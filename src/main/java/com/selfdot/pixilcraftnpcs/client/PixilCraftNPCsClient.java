@@ -1,5 +1,6 @@
 package com.selfdot.pixilcraftnpcs.client;
 
+import com.selfdot.pixilcraftnpcs.network.s2c.ClearNPCEntityPacket;
 import com.selfdot.pixilcraftnpcs.network.s2c.PixilCraftNPCsClientPacketHandler;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetHumanNPCTexturePacket;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
@@ -38,6 +39,9 @@ public class PixilCraftNPCsClient implements ClientModInitializer {
         );
         ClientPlayNetworking.registerGlobalReceiver(
             SetNPCVisibilityPacket.ID, packetHandler::onSetNPCVisibility
+        );
+        ClientPlayNetworking.registerGlobalReceiver(
+            ClearNPCEntityPacket.ID, packetHandler::onClearNPCEntity
         );
     }
 }

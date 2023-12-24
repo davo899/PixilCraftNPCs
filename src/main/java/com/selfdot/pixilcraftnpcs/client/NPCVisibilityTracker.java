@@ -22,4 +22,9 @@ public class NPCVisibilityTracker {
         visibilityMap.put(entityID, visible);
     }
 
+    public void clearVisibility(UUID entityID) {
+        if (!visibilityMap.containsKey(entityID)) return;
+        visibilityMap.remove(entityID);
+    }
+
 }

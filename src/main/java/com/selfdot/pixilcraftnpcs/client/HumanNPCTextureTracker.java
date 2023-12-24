@@ -26,4 +26,9 @@ public class HumanNPCTextureTracker {
         textureMap.put(entityID, texture);
     }
 
+    public void clearTexture(UUID entityID) {
+        if (!textureMap.containsKey(entityID)) return;
+        textureMap.remove(entityID);
+    }
+
 }
