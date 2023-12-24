@@ -6,6 +6,8 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
 import com.google.gson.JsonObject;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCsConfig;
 import com.selfdot.pixilcraftnpcs.imixin.IPokemonEntityMixin;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
@@ -61,7 +63,9 @@ public class PokemonNPC extends NPC<PokemonEntity> {
 
     @Override
     protected boolean faceNearestPlayer() {
-        PlayerEntity nearestPlayer = entity.getWorld().getClosestPlayer(entity, 5);
+        PlayerEntity nearestPlayer = entity.getWorld().getClosestPlayer(
+            entity, PixilCraftNPCs.CONFIG.getMaxFacesPlayerDistance()
+        );
         if (nearestPlayer == null) return false;
         Vec3d diff = nearestPlayer.getEyePos().subtract(entity.getEyePos());
         Vec3d xzDir = diff.withAxis(Direction.Axis.Y, 0).normalize();

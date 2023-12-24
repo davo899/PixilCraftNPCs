@@ -19,9 +19,14 @@ public class PixilCraftNPCsConfig {
     private static final String FILENAME = "config/pixilcraftnpcsConfig.json";
 
     private double minDespawnDistance = 512;
+    private double maxFacesPlayerDistance = 5;
 
     public double getMinDespawnDistance() {
         return minDespawnDistance;
+    }
+
+    public double getMaxFacesPlayerDistance() {
+        return maxFacesPlayerDistance;
     }
 
     public void reload(MinecraftServer server) {
@@ -30,6 +35,7 @@ public class PixilCraftNPCsConfig {
             try {
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
                 minDespawnDistance = jsonObject.get(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE).getAsDouble();
+                maxFacesPlayerDistance = jsonObject.get(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE).getAsDouble();
                 PixilCraftNPCs.LOGGER.info("Loaded NPCs config");
 
             } catch (Exception e) {
@@ -47,6 +53,7 @@ public class PixilCraftNPCsConfig {
             FileWriter writer = new FileWriter(FILENAME);
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE, minDespawnDistance);
+            jsonObject.addProperty(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE, maxFacesPlayerDistance);
             PixilCraftNPCs.GSON.toJson(jsonObject, writer);
             writer.close();
 

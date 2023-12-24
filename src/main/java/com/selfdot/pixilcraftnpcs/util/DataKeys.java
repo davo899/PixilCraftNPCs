@@ -29,5 +29,6 @@ public class DataKeys {
     public static final String MV_POS_WORLD_ID = "worldID";
 
     public static final String CONFIG_MIN_DESPAWN_DISTANCE = "minDespawnDistance";
+    public static final String CONFIG_MAX_FACES_PLAYER_DISTANCE = "maxFacesPlayerDistance";
 
 }

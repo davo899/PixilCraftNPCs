@@ -2,6 +2,7 @@ package com.selfdot.pixilcraftnpcs.npc;
 
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCsConfig;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetHumanNPCTexturePacket;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
@@ -38,7 +39,9 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
 
     @Override
     protected boolean faceNearestPlayer() {
-        PlayerEntity nearestPlayer = entity.getWorld().getClosestPlayer(entity, 5);
+        PlayerEntity nearestPlayer = entity.getWorld().getClosestPlayer(
+            entity, PixilCraftNPCs.CONFIG.getMaxFacesPlayerDistance()
+        );
         if (nearestPlayer == null) return false;
         entity.getLookControl().lookAt(nearestPlayer);
         return true;
