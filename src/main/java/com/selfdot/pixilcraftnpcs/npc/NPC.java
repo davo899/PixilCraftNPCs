@@ -35,8 +35,8 @@ public abstract class NPC<E extends MobEntity> {
 
     private final String id;
     private MultiversePos position;
-    private final double pitch;
-    private final double yaw;
+    private double pitch;
+    private double yaw;
     protected String displayName;
     private List<String> commandList = new ArrayList<>();
     protected boolean nameplateEnabled = true;
@@ -66,6 +66,14 @@ public abstract class NPC<E extends MobEntity> {
     public void setPosition(MultiversePos position, MinecraftServer server) {
         this.position = position;
         remove(server);
+    }
+
+    public void setPitch(double pitch) {
+        this.pitch = pitch;
+    }
+
+    public void setYaw(double yaw) {
+        this.yaw = yaw;
     }
 
     public void setDisplayName(String displayName) {

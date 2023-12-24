@@ -154,6 +154,20 @@ public class NPCCommandTree {
                             )
                         )
                     )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("pitch")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
+                            argument("pitch", doubleArg())
+                            .executes(new SetPitchCommand())
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("yaw")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
+                            argument("yaw", doubleArg())
+                            .executes(new SetYawCommand())
+                        )
+                    )
                 )
             )
         );
