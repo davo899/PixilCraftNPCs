@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
+import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty;
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCsConfig;
@@ -35,6 +36,7 @@ public class PokemonNPC extends NPC<PokemonEntity> {
         if (entity == null) return null;
         Pokemon pokemon = new Pokemon();
         pokemon.setSpecies(species);
+        pokemon.getCustomProperties().add(UncatchableProperty.INSTANCE.uncatchable());
         entity.setPokemon(pokemon);
         entity.setAiDisabled(true);
         entity.setPersistent();
