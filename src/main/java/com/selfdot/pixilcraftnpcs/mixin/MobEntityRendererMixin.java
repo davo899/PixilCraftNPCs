@@ -30,7 +30,6 @@ public abstract class MobEntityRendererMixin extends EntityRenderer<MobEntity> {
         CallbackInfo info
     ) {
         if (NPCVisibilityTracker.getInstance().notVisible(entity.getUuid())) {
-            shadowRadius = 0;
             info.cancel();
         }
     }

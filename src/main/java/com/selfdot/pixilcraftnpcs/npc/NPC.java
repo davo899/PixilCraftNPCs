@@ -127,9 +127,13 @@ public abstract class NPC<E extends MobEntity> {
                 pos.x, pos.y, pos.z, PixilCraftNPCs.CONFIG.getMinDespawnDistance(), null
             ) == null
         ) {
-            if (entityLoaded) remove(world.getServer());
+            if (entityLoaded) {
+                remove(world.getServer());
+            }
         } else {
-            if (!entityLoaded) spawn(world.getServer());
+            if (!entityLoaded) {
+                spawn(world.getServer());
+            }
         }
     }
 
