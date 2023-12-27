@@ -27,7 +27,7 @@ public class ChatColourUtils {
     }
 
     public static String replaceTokens(String string, PlayerEntity player) {
-        return string.replaceAll(DataKeys.PLAYER_TOKEN, player.getDisplayName().getString());
+        return string.replaceAll(DataKeys.PLAYER_TOKEN, player.getGameProfile().getName());
     }
 
 }
