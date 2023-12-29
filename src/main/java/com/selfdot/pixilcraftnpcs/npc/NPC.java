@@ -31,7 +31,7 @@ public abstract class NPC<E extends MobEntity> {
     protected abstract boolean faceNearestPlayer();
 
     private final String id;
-    private MultiversePos position;
+    protected MultiversePos position;
     private double pitch;
     private double yaw;
     protected String displayName;

@@ -8,16 +8,12 @@ import com.cobblemon.mod.common.pokemon.Species;
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty;
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
-import com.selfdot.pixilcraftnpcs.PixilCraftNPCsConfig;
 import com.selfdot.pixilcraftnpcs.imixin.IPokemonEntityMixin;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import kotlin.Unit;
-import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
@@ -32,19 +28,18 @@ public class PokemonNPC extends NPC<PokemonEntity> {
 
     @Override
     public PokemonEntity getNewEntity(ServerWorld world) {
-        PokemonEntity entity = CobblemonEntities.POKEMON.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
-        if (entity == null) return null;
         Pokemon pokemon = new Pokemon();
         pokemon.setSpecies(species);
         pokemon.getCustomProperties().add(UncatchableProperty.INSTANCE.uncatchable());
+        PokemonEntity entity = new PokemonEntity(world, pokemon, CobblemonEntities.POKEMON);
+        entity.setPosition(position.pos());
         entity.setPokemon(pokemon);
         entity.setAiDisabled(true);
         entity.setPersistent();
         entity.setInvulnerable(true);
-        entity.getLabelLevel$common().set(0);
-        entity.getUnbattleable().set(true);
         entity.setCustomName(formattedDisplayName());
         entity.getNicknameVisible().set(true);
+        entity.getHideLabel().set(!nameplateEnabled);
         ((IPokemonEntityMixin)(Object)entity).pixilCraftNPCs$setNPC(true);
         entity.getLabelLevel$common().subscribe(
             Priority.HIGHEST,
@@ -60,6 +55,9 @@ public class PokemonNPC extends NPC<PokemonEntity> {
                 return Unit.INSTANCE;
             }
         );
+        entity.getLabelLevel$common().set(0);
+        entity.getUnbattleable().set(true);
+        world.spawnEntity(entity);
         return entity;
     }
 
