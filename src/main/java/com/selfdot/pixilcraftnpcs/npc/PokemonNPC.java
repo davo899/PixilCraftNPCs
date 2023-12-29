@@ -20,45 +20,35 @@ import net.minecraft.util.math.Vec3d;
 public class PokemonNPC extends NPC<PokemonEntity> {
 
     private final Species species;
+    private final Pokemon pokemon;
 
     public PokemonNPC(String id, MultiversePos position, double pitch, double yaw, Species species) {
         super(id, position, pitch, yaw);
         this.species = species;
+        pokemon = new Pokemon();
+        pokemon.setSpecies(species);
+        pokemon.getCustomProperties().add(UncatchableProperty.INSTANCE.uncatchable());
     }
 
     @Override
-    public PokemonEntity getNewEntity(ServerWorld world) {
-        Pokemon pokemon = new Pokemon();
-        pokemon.setSpecies(species);
-        pokemon.getCustomProperties().add(UncatchableProperty.INSTANCE.uncatchable());
-        PokemonEntity entity = new PokemonEntity(world, pokemon, CobblemonEntities.POKEMON);
-        entity.setPosition(position.pos());
-        entity.setPokemon(pokemon);
-        entity.setAiDisabled(true);
-        entity.setPersistent();
-        entity.setInvulnerable(true);
-        entity.setCustomName(formattedDisplayName());
+    protected void spawnEntityInWorld(ServerWorld world) {
+        entity = new PokemonEntity(world, pokemon, CobblemonEntities.POKEMON);
+        updateTracked();
+        world.spawnEntity(entity);
+    }
+
+    @Override
+    protected void updateTracked() {
+        super.updateTracked();
+        entity.getLabelLevel$common().set(0);
+        entity.getUnbattleable().set(true);
         entity.getNicknameVisible().set(true);
         entity.getHideLabel().set(!nameplateEnabled);
         ((IPokemonEntityMixin)(Object)entity).pixilCraftNPCs$setNPC(true);
-        entity.getLabelLevel$common().subscribe(
-            Priority.HIGHEST,
-            n -> {
-                if (n != 0) entity.getLabelLevel$common().set(0);
-                return Unit.INSTANCE;
-            }
-        );
-        entity.getUnbattleable().subscribe(
-            Priority.HIGHEST,
-            b -> {
-                if (!b) entity.getUnbattleable().set(true);
-                return Unit.INSTANCE;
-            }
-        );
-        entity.getLabelLevel$common().set(0);
-        entity.getUnbattleable().set(true);
-        world.spawnEntity(entity);
-        return entity;
+        entity.setAiDisabled(true);
+        entity.setPersistent();
+        entity.setInvulnerable(true);
+        entity.setPokemon(pokemon);
     }
 
     @Override
@@ -80,14 +70,12 @@ public class PokemonNPC extends NPC<PokemonEntity> {
     }
 
     @Override
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void updateDisplayName() {
         entity.setCustomName(formattedDisplayName());
     }
 
     @Override
-    public void setNameplateEnabled(boolean nameplateEnabled) {
-        this.nameplateEnabled = nameplateEnabled;
+    public void updateNameplateEnabled() {
         entity.getHideLabel().set(!nameplateEnabled);
     }
 

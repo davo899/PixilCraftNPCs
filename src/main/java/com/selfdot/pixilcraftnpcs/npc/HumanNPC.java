@@ -2,7 +2,6 @@ package com.selfdot.pixilcraftnpcs.npc;
 
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
-import com.selfdot.pixilcraftnpcs.PixilCraftNPCsConfig;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetHumanNPCTexturePacket;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
@@ -33,8 +32,8 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
     }
 
     @Override
-    public HumanNPCEntity getNewEntity(ServerWorld world) {
-        return PixilCraftNPCs.NPC_HUMAN.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
+    protected void spawnEntityInWorld(ServerWorld world) {
+        entity = PixilCraftNPCs.NPC_HUMAN.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
     }
 
     @Override

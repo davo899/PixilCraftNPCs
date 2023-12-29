@@ -8,7 +8,7 @@ public class ToggleGloballyVisibleCommand extends NPCEditCommand {
 
     @Override
     public int runSubCommand(CommandContext<ServerCommandSource> context) {
-        npc.toggleGloballyInvisible();
+        npc.toggleGloballyInvisible(context.getSource().getServer());
         context.getSource().sendMessage(Text.literal("Toggled NPC " + id));
         return SINGLE_SUCCESS;
     }

@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public abstract class NPC<E extends MobEntity> {
 
     protected E entity;
-    public abstract E getNewEntity(ServerWorld world);
+    protected abstract void spawnEntityInWorld(ServerWorld world);
     protected abstract boolean faceNearestPlayer();
 
     private final String id;
@@ -39,7 +39,7 @@ public abstract class NPC<E extends MobEntity> {
     protected boolean nameplateEnabled = true;
     private long interactCooldownSeconds = 0;
     private long questConditionID = -1;
-    private boolean globallyInvisible = false;
+    protected boolean globallyInvisible = false;
     protected boolean facesNearestPlayer = false;
     private double proximityTriggerRadius = 0;
     protected boolean entityLoaded = false;
@@ -79,15 +79,10 @@ public abstract class NPC<E extends MobEntity> {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-        if (nameplateEnabled) entity.setCustomName(formattedDisplayName());
     }
 
     public void setNameplateEnabled(boolean nameplateEnabled) {
         this.nameplateEnabled = nameplateEnabled;
-
-        entity.setCustomNameVisible(nameplateEnabled);
-        if (nameplateEnabled) entity.setCustomName(formattedDisplayName());
-        else entity.setCustomName(null);
     }
 
     public void setInteractCooldownSeconds(long interactCooldownSeconds) {
@@ -96,17 +91,16 @@ public abstract class NPC<E extends MobEntity> {
 
     public void setQuestConditionID(long questConditionID, MinecraftServer server) {
         this.questConditionID = questConditionID;
-        server.getPlayerManager().getPlayerList().forEach(this::sendQuestUpdate);
+        server.getPlayerManager().getPlayerList().forEach(this::sendVisibilityUpdate);
     }
 
-    public void toggleGloballyInvisible() {
+    public void toggleGloballyInvisible(MinecraftServer server) {
         globallyInvisible = !globallyInvisible;
-        entity.setInvisible(globallyInvisible);
+        server.getPlayerManager().getPlayerList().forEach(this::sendVisibilityUpdate);
     }
 
     public void setFacesNearestPlayer(boolean facesNearestPlayer) {
         this.facesNearestPlayer = facesNearestPlayer;
-        updateFacing();
     }
 
     public void setProximityTriggerRadius(double proximityTriggerRadius) {
@@ -117,7 +111,28 @@ public abstract class NPC<E extends MobEntity> {
         if (!world.getRegistryKey().getValue().equals(position.worldID())) return;
         checkShouldLoadEntity(world);
         checkProximityTrigger(world);
-        updateFacing();
+        if (entityLoaded) updateTracked();
+    }
+
+    protected void updateTracked() {
+        if (!facesNearestPlayer || !faceNearestPlayer()) {
+            entity.setBodyYaw((float)yaw);
+            entity.setHeadYaw((float)yaw);
+            entity.setPitch((float)pitch);
+        }
+        entity.setPosition(position.pos());
+        updateDisplayName();
+        updateNameplateEnabled();
+    }
+
+    protected void updateDisplayName() {
+        if (nameplateEnabled) entity.setCustomName(formattedDisplayName());
+    }
+
+    protected void updateNameplateEnabled() {
+        entity.setCustomNameVisible(nameplateEnabled);
+        if (nameplateEnabled) entity.setCustomName(formattedDisplayName());
+        else entity.setCustomName(null);
     }
 
     public void checkShouldLoadEntity(ServerWorld world) {
@@ -144,23 +159,11 @@ public abstract class NPC<E extends MobEntity> {
             .forEach(player -> checkInteract(player, false));
     }
 
-    protected void updateFacing() {
-        if (entityLoaded && (!facesNearestPlayer || !faceNearestPlayer())) {
-            entity.setBodyYaw((float)yaw);
-            entity.setHeadYaw((float)yaw);
-            entity.setPitch((float)pitch);
-        }
-    }
-
     public void spawn(MinecraftServer server) {
         for (ServerWorld world : server.getWorlds()) {
             if (world.getRegistryKey().getValue().equals(position.worldID())) {
-                entity = getNewEntity(world);
-                if (entity == null) return;
-                entity.setPosition(position.pos());
-                setDisplayName(displayName);
-                setNameplateEnabled(nameplateEnabled);
-                entityLoaded = true;
+                spawnEntityInWorld(world);
+                entityLoaded = entity != null;
                 server.getPlayerManager().getPlayerList().forEach(this::sendClientUpdate);
                 return;
             }
@@ -192,20 +195,20 @@ public abstract class NPC<E extends MobEntity> {
     }
 
     public void sendClientUpdate(ServerPlayerEntity player) {
-        if (entityLoaded) sendQuestUpdate(player);
-        else new ClearNPCEntityPacket(entity.getUuid()).sendS2C(player);
+        if (entityLoaded) sendVisibilityUpdate(player);
+        else if (entity != null) new ClearNPCEntityPacket(entity.getUuid()).sendS2C(player);
     }
 
-    private void sendQuestUpdate(ServerPlayerEntity player) {
+    private void sendVisibilityUpdate(ServerPlayerEntity player) {
         new SetNPCVisibilityPacket(
             entity.getUuid(),
-            (questConditionID == -1 || FTBUtils.completedQuest(player, questConditionID))
+            !globallyInvisible && (questConditionID == -1 || FTBUtils.completedQuest(player, questConditionID))
         ).sendS2C(player);
     }
 
     public void onQuestCompleted(ServerPlayerEntity player, long questConditionID) {
         if (questConditionID != this.questConditionID) return;
-        sendQuestUpdate(player);
+        sendVisibilityUpdate(player);
     }
 
     public JsonObject toJson() {
