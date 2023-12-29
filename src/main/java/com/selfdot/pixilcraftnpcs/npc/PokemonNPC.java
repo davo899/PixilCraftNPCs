@@ -13,6 +13,7 @@ import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
 import kotlin.Unit;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -77,6 +78,12 @@ public class PokemonNPC extends NPC<PokemonEntity> {
     @Override
     public void updateNameplateEnabled() {
         entity.getHideLabel().set(!nameplateEnabled);
+    }
+
+    @Override
+    public void remove(MinecraftServer server) {
+        ((IPokemonEntityMixin)(Object)entity).pixilCraftNPCs$setDiscardable(true);
+        super.remove(server);
     }
 
     @Override
