@@ -1,6 +1,5 @@
 package com.selfdot.pixilcraftnpcs.command;
 
-import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;

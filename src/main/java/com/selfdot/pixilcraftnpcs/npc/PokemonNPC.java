@@ -1,11 +1,5 @@
 package com.selfdot.pixilcraftnpcs.npc;
 
-import com.cobblemon.mod.common.CobblemonEntities;
-import com.cobblemon.mod.common.api.Priority;
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.cobblemon.mod.common.pokemon.Species;
-import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty;
 import com.google.gson.JsonObject;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCsConfig;

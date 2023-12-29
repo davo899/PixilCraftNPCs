@@ -1,6 +1,5 @@
 package com.selfdot.pixilcraftnpcs.mixin;
 
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.selfdot.pixilcraftnpcs.imixin.IPokemonEntityMixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

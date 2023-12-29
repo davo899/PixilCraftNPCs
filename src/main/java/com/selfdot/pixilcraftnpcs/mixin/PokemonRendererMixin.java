@@ -1,7 +1,5 @@
 package com.selfdot.pixilcraftnpcs.mixin;
 
-import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer;
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.selfdot.pixilcraftnpcs.client.NPCVisibilityTracker;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;

@@ -48,9 +48,6 @@ dependencies {
     // Architectury
     modImplementation("dev.architectury:architectury-fabric:${property("architectury_version")}")
 
-    // Cobblemon
-    modImplementation("com.cobblemon:fabric:${property("cobblemon_version")}")
-
     modApi("dev.ftb.mods:ftb-library-fabric:${property("ftb_library_version")}") {
         isTransitive = false
     }
