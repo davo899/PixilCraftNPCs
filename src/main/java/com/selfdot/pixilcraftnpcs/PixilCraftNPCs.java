@@ -12,6 +12,7 @@ import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.InteractionEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.ftb.mods.ftbquests.events.ObjectCompletedEvent;
@@ -70,6 +71,7 @@ public class PixilCraftNPCs implements ModInitializer {
         InteractionEvent.INTERACT_ENTITY.register(this::onInteractEntity);
         ObjectCompletedEvent.QUEST.register(this::onQuestCompleted);
         TickEvent.SERVER_LEVEL_PRE.register(this::onLevelTick);
+        LifecycleEvent.SERVER_LEVEL_SAVE.register(this::onLevelSave);
 
         InteractCooldownTracker.getInstance().load();
     }
@@ -90,8 +92,6 @@ public class PixilCraftNPCs implements ModInitializer {
     }
 
     private void onServerStopping(MinecraftServer server) {
-        NPCTracker.getInstance().discardAllNPCEntities(server);
-
         if (!DISABLED) {
             NPCTracker.getInstance().save();
             InteractCooldownTracker.getInstance().save();
@@ -118,6 +118,10 @@ public class PixilCraftNPCs implements ModInitializer {
 
     private void onLevelTick(ServerWorld world) {
         NPCTracker.getInstance().onTick(world);
+    }
+
+    private void onLevelSave(ServerWorld world) {
+        NPCTracker.getInstance().removeAllNPCsInWorld(world);
     }
 
 }

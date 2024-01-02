@@ -176,6 +176,10 @@ public abstract class NPC<E extends MobEntity> {
         server.getPlayerManager().getPlayerList().forEach(this::sendClientUpdate);
     }
 
+    public boolean inWorld(ServerWorld world) {
+        return position.worldID().equals(world.getRegistryKey().getValue());
+    }
+
     public void checkInteract(PlayerEntity player, Entity entity) {
         if (this.entity != entity) return;
         checkInteract(player, true);
