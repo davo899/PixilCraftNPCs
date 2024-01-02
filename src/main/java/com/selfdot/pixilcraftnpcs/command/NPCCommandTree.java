@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.util.CommandUtils;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 
@@ -21,7 +22,7 @@ public class NPCCommandTree {
         dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>
             literal("npc")
             .requires(source -> !PixilCraftNPCs.DISABLED)
-            .requires(source -> source.hasPermissionLevel(4))
+            .requires(source -> CommandUtils.hasPermission(source, "selfdot.op.npcs"))
             .then(LiteralArgumentBuilder.<ServerCommandSource>
                 literal("new")
                 .requires(ServerCommandSource::isExecutedByPlayer)

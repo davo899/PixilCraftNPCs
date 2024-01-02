@@ -62,6 +62,8 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
+
+    compileOnly("net.luckperms:api:5.4")
 }
 
 tasks.getByName<Test>("test") {
