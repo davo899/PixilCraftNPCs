@@ -71,7 +71,6 @@ public class PixilCraftNPCs implements ModInitializer {
         InteractionEvent.INTERACT_ENTITY.register(this::onInteractEntity);
         ObjectCompletedEvent.QUEST.register(this::onQuestCompleted);
         TickEvent.SERVER_LEVEL_PRE.register(this::onLevelTick);
-        LifecycleEvent.SERVER_LEVEL_SAVE.register(this::onLevelSave);
 
         InteractCooldownTracker.getInstance().load();
     }
@@ -118,10 +117,6 @@ public class PixilCraftNPCs implements ModInitializer {
 
     private void onLevelTick(ServerWorld world) {
         NPCTracker.getInstance().onTick(world);
-    }
-
-    private void onLevelSave(ServerWorld world) {
-        NPCTracker.getInstance().removeAllNPCsInWorld(world);
     }
 
 }

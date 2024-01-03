@@ -41,10 +41,6 @@ public class NPCTracker {
         npcs.values().forEach(npc -> npc.spawn(server));
     }
 
-    public void removeAllNPCsInWorld(ServerWorld world) {
-        npcs.values().stream().filter(npc -> npc.inWorld(world)).forEach(npc -> npc.remove(server));
-    }
-
     public void sendClientUpdates(ServerPlayerEntity player) {
         npcs.values().forEach(npc -> npc.sendClientUpdate(player));
     }

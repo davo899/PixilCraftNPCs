@@ -25,4 +25,9 @@ public class HumanNPCEntity extends MobEntity {
     @Override
     public void pushAwayFrom(Entity entity) { }
 
+    @Override
+    public boolean shouldSave() {
+        return false;
+    }
+
 }

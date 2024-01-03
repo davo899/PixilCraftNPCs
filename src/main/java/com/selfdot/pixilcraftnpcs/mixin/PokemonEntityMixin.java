@@ -38,4 +38,9 @@ public class PokemonEntityMixin implements IPokemonEntityMixin {
         if (isNPC && !isDiscardable) cir.cancel();
     }
 
+    @Inject(method = "shouldSave", at = @At("HEAD"), cancellable = true)
+    private void injectShouldSave(CallbackInfoReturnable<Boolean> cir) {
+        if (isNPC) cir.setReturnValue(false);
+    }
+
 }
