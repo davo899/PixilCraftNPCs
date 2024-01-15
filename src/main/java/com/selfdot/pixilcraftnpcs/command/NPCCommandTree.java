@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.npc.SkinType;
 import com.selfdot.pixilcraftnpcs.util.CommandUtils;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
@@ -167,6 +168,17 @@ public class NPCCommandTree {
                         .then(RequiredArgumentBuilder.<ServerCommandSource, Double>
                             argument("yaw", doubleArg())
                             .executes(new SetYawCommand())
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("skinType")
+                        .then(LiteralArgumentBuilder.<ServerCommandSource>
+                            literal("classic")
+                            .executes(new SetHumanNPCSkinTypeCommand(SkinType.CLASSIC))
+                        )
+                        .then(LiteralArgumentBuilder.<ServerCommandSource>
+                            literal("slim")
+                            .executes(new SetHumanNPCSkinTypeCommand(SkinType.SLIM))
                         )
                     )
                 )

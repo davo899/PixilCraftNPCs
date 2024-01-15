@@ -20,8 +20,12 @@ public class DataKeys {
     public static final String NPC_TYPE = "type";
     public static final String NPC_HUMAN = "human";
     public static final String NPC_HUMAN_SKIN = "skin";
+    public static final String NPC_HUMAN_SKIN_TYPE = "skinType";
     public static final String NPC_POKEMON = "pokemon";
     public static final String NPC_POKEMON_SPECIES = "species";
+
+    public static final String SKIN_TYPE_CLASSIC = "classic";
+    public static final String SKIN_TYPE_SLIM = "slim";
 
     public static final String MV_POS_X = "x";
     public static final String MV_POS_Y = "y";

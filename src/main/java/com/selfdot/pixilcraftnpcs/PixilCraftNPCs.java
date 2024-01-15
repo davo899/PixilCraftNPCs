@@ -45,9 +45,17 @@ public class PixilCraftNPCs implements ModInitializer {
     public static boolean DISABLED = false;
     public static Logger LOGGER = LogUtils.getLogger();
     public static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    public static final EntityType<HumanNPCEntity> NPC_HUMAN = Registry.register(
+    public static final EntityType<HumanNPCEntity> NPC_HUMAN_SLIM = Registry.register(
         Registries.ENTITY_TYPE,
-        new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc_human"),
+        new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc_human_slim"),
+        FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HumanNPCEntity::new)
+            .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
+            .disableSummon()
+            .build()
+    );
+    public static final EntityType<HumanNPCEntity> NPC_HUMAN_CLASSIC = Registry.register(
+        Registries.ENTITY_TYPE,
+        new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc_human_classic"),
         FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HumanNPCEntity::new)
             .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
             .disableSummon()
@@ -57,7 +65,9 @@ public class PixilCraftNPCs implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        FabricDefaultAttributeRegistry.register(NPC_HUMAN, HumanNPCEntity.createMobAttributes());
+        FabricDefaultAttributeRegistry.register(NPC_HUMAN_SLIM, HumanNPCEntity.createMobAttributes());
+        FabricDefaultAttributeRegistry.register(NPC_HUMAN_CLASSIC, HumanNPCEntity.createMobAttributes());
+
         ArgumentTypeRegistry.registerArgumentType(
             new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "command_list"),
             CommandListArgumentType.class,

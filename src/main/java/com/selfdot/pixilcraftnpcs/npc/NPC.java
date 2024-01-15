@@ -176,10 +176,6 @@ public abstract class NPC<E extends MobEntity> {
         server.getPlayerManager().getPlayerList().forEach(this::sendClientUpdate);
     }
 
-    public boolean inWorld(ServerWorld world) {
-        return position.worldID().equals(world.getRegistryKey().getValue());
-    }
-
     public void checkInteract(PlayerEntity player, Entity entity) {
         if (this.entity != entity) return;
         checkInteract(player, true);
@@ -244,7 +240,16 @@ public abstract class NPC<E extends MobEntity> {
                 String skinStr = jsonObject.get(DataKeys.NPC_HUMAN_SKIN).getAsString();
                 Identifier skin = Identifier.tryParse(skinStr);
                 if (skin == null) throw new IllegalArgumentException("Failed to parse skin ID: " + skinStr);
-                yield new HumanNPC(id, position, pitch, yaw, skin);
+                SkinType skinType = SkinType.SLIM;
+                if (jsonObject.has(DataKeys.NPC_HUMAN_SKIN_TYPE)) {
+                    String skinTypeStr = jsonObject.get(DataKeys.NPC_HUMAN_SKIN_TYPE).getAsString();
+                    skinType = switch (skinTypeStr) {
+                        case DataKeys.SKIN_TYPE_CLASSIC -> SkinType.CLASSIC;
+                        case DataKeys.SKIN_TYPE_SLIM -> SkinType.SLIM;
+                        default -> throw new IllegalStateException("Unknown skin type: " + skinTypeStr);
+                    };
+                }
+                yield new HumanNPC(id, position, pitch, yaw, skin, skinType);
             }
             case DataKeys.NPC_POKEMON -> {
                 String speciesStr = jsonObject.get(DataKeys.NPC_POKEMON_SPECIES).getAsString();

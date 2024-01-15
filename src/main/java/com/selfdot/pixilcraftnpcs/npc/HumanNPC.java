@@ -16,14 +16,23 @@ import net.minecraft.util.math.BlockPos;
 public class HumanNPC extends NPC<HumanNPCEntity> {
 
     private Identifier texture;
+    private SkinType skinType;
 
-    public HumanNPC(String id, MultiversePos position, double pitch, double yaw, Identifier texture) {
+    public HumanNPC(
+        String id,
+        MultiversePos position,
+        double pitch,
+        double yaw,
+        Identifier texture,
+        SkinType skinType
+    ) {
         super(id, position, pitch, yaw);
         this.texture = texture;
+        this.skinType = skinType;
     }
 
     public HumanNPC(String id, MultiversePos position, double pitch, double yaw) {
-        this(id, position, pitch, yaw, new Identifier("textures/entity/player/slim/steve.png"));
+        this(id, position, pitch, yaw, new Identifier("textures/entity/player/slim/steve.png"), SkinType.SLIM);
     }
 
     public void setTexture(Identifier texture, MinecraftServer server) {
@@ -31,9 +40,17 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
         server.getPlayerManager().getPlayerList().forEach(this::sendTextureUpdate);
     }
 
+    public void setSkinType(SkinType skinType, MinecraftServer server) {
+        this.skinType = skinType;
+        remove(server);
+    }
+
     @Override
     protected void spawnEntityInWorld(ServerWorld world) {
-        entity = PixilCraftNPCs.NPC_HUMAN.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
+        entity = switch (skinType) {
+            case CLASSIC -> PixilCraftNPCs.NPC_HUMAN_CLASSIC.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
+            case SLIM -> PixilCraftNPCs.NPC_HUMAN_SLIM.spawn(world, BlockPos.ORIGIN, SpawnReason.MOB_SUMMONED);
+        };
     }
 
     @Override
@@ -61,6 +78,10 @@ public class HumanNPC extends NPC<HumanNPCEntity> {
         JsonObject jsonObject = super.toJson();
         jsonObject.addProperty(DataKeys.NPC_TYPE, DataKeys.NPC_HUMAN);
         jsonObject.addProperty(DataKeys.NPC_HUMAN_SKIN, texture.toString());
+        jsonObject.addProperty(DataKeys.NPC_HUMAN_SKIN_TYPE, switch (skinType) {
+            case CLASSIC -> DataKeys.SKIN_TYPE_CLASSIC;
+            case SLIM -> DataKeys.SKIN_TYPE_SLIM;
+        });
         return jsonObject;
     }
 

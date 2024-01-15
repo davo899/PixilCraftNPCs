@@ -6,6 +6,7 @@ import com.selfdot.pixilcraftnpcs.network.s2c.SetHumanNPCTexturePacket;
 import com.selfdot.pixilcraftnpcs.network.s2c.SetNPCVisibilityPacket;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPCEntity;
 import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
+import com.selfdot.pixilcraftnpcs.npc.SkinType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -23,29 +24,10 @@ public class PixilCraftNPCsClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         EntityRendererRegistry.register(
-            PixilCraftNPCs.NPC_HUMAN, context -> new MobEntityRenderer<>(
-                context,
-                new PlayerEntityModel<>(context.getPart(EntityModelLayers.PLAYER_SLIM), false),
-                1f
-            ) {
-                @Override
-                public Identifier getTexture(HumanNPCEntity entity) {
-                    return HumanNPCTextureTracker.getInstance().getTexture(entity.getUuid());
-                }
-
-                @Override
-                public void render(
-                    HumanNPCEntity mobEntity,
-                    float f,
-                    float g,
-                    MatrixStack matrixStack,
-                    VertexConsumerProvider vertexConsumerProvider,
-                    int i
-                ) {
-                    shadowRadius = 0;
-                    super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
-                }
-            }
+            PixilCraftNPCs.NPC_HUMAN_SLIM, context -> new HumanNPCRenderer(context, SkinType.SLIM)
+        );
+        EntityRendererRegistry.register(
+            PixilCraftNPCs.NPC_HUMAN_CLASSIC, context -> new HumanNPCRenderer(context, SkinType.CLASSIC)
         );
 
         PixilCraftNPCsClientPacketHandler packetHandler = new PixilCraftNPCsClientPacketHandler();
