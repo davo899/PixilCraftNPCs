@@ -5,6 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
+import com.selfdot.pixilcraftnpcs.util.DisableableMod;
+import com.selfdot.pixilcraftnpcs.util.JsonFile;
+import com.selfdot.pixilcraftnpcs.util.ReadOnlyJsonFile;
 import net.minecraft.server.MinecraftServer;
 
 import java.io.FileNotFoundException;
@@ -14,12 +17,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class PixilCraftNPCsConfig {
+public class PixilCraftNPCsConfig extends JsonFile {
 
-    private static final String FILENAME = "config/pixilcraftnpcsConfig.json";
+    private double minDespawnDistance;
+    private double maxFacesPlayerDistance;
 
-    private double minDespawnDistance = 512;
-    private double maxFacesPlayerDistance = 5;
+    public PixilCraftNPCsConfig(DisableableMod mod) {
+        super(mod);
+    }
 
     public double getMinDespawnDistance() {
         return minDespawnDistance;
@@ -29,38 +34,34 @@ public class PixilCraftNPCsConfig {
         return maxFacesPlayerDistance;
     }
 
-    public void reload(MinecraftServer server) {
-        try {
-            JsonElement jsonElement = JsonParser.parseReader(new FileReader(FILENAME));
-            try {
-                JsonObject jsonObject = jsonElement.getAsJsonObject();
-                minDespawnDistance = jsonObject.get(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE).getAsDouble();
-                maxFacesPlayerDistance = jsonObject.get(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE).getAsDouble();
-                PixilCraftNPCs.LOGGER.info("Loaded NPCs config");
+    @Override
+    protected String filename() {
+        return "config/pixilcraftnpcsConfig.json";
+    }
 
-            } catch (Exception e) {
-                PixilCraftNPCs.DISABLED = true;
-                LogUtils.getLogger().error("An exception occurred when loading NPCs config:");
-                LogUtils.getLogger().error(e.getMessage());
-            }
+    @Override
+    protected void setDefaults() {
+        minDespawnDistance = 512;
+        maxFacesPlayerDistance = 5;
+    }
 
-        } catch (FileNotFoundException e) {
-            PixilCraftNPCs.LOGGER.warn("NPCs config file not found, attempting to generate");
+    @Override
+    protected void loadFromJson(JsonElement jsonElement) {
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        if (jsonObject.has(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE)) {
+            minDespawnDistance = jsonObject.get(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE).getAsDouble();
         }
-
-        try {
-            Files.createDirectories(Paths.get(FILENAME).getParent());
-            FileWriter writer = new FileWriter(FILENAME);
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE, minDespawnDistance);
-            jsonObject.addProperty(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE, maxFacesPlayerDistance);
-            PixilCraftNPCs.GSON.toJson(jsonObject, writer);
-            writer.close();
-
-        } catch (IOException ex) {
-            PixilCraftNPCs.DISABLED = true;
-            LogUtils.getLogger().error("Unable to save NPCs config file");
+        if (jsonObject.has(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE)) {
+            maxFacesPlayerDistance = jsonObject.get(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE).getAsDouble();
         }
+    }
+
+    @Override
+    protected JsonElement toJson() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty(DataKeys.CONFIG_MIN_DESPAWN_DISTANCE, minDespawnDistance);
+        jsonObject.addProperty(DataKeys.CONFIG_MAX_FACES_PLAYER_DISTANCE, maxFacesPlayerDistance);
+        return jsonObject;
     }
 
 }

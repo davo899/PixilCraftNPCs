@@ -2,6 +2,7 @@ package com.selfdot.pixilcraftnpcs.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.npc.NPC;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import net.minecraft.server.command.ServerCommandSource;
@@ -15,7 +16,7 @@ public abstract class NPCEditCommand extends TwoLayerCommand {
     @Override
     public int runSuperCommand(CommandContext<ServerCommandSource> context) {
         id = StringArgumentType.getString(context, "id");
-        npc = NPCTracker.getInstance().get(id);
+        npc = PixilCraftNPCs.getInstance().getNPCTracker().get(id);
         if (npc == null) {
             context.getSource().sendError(Text.literal("NPC " + id + " does not exist"));
             return -1;

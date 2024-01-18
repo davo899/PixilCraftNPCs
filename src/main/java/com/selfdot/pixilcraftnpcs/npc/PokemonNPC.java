@@ -55,7 +55,7 @@ public class PokemonNPC extends NPC<PokemonEntity> {
     @Override
     protected boolean faceNearestPlayer() {
         PlayerEntity nearestPlayer = entity.getWorld().getClosestPlayer(
-            entity, PixilCraftNPCs.CONFIG.getMaxFacesPlayerDistance()
+            entity, PixilCraftNPCs.getInstance().getConfig().getMaxFacesPlayerDistance()
         );
         if (nearestPlayer == null) return false;
         Vec3d diff = nearestPlayer.getEyePos().subtract(entity.getEyePos());

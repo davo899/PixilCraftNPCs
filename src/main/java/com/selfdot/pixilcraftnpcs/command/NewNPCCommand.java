@@ -3,6 +3,7 @@ package com.selfdot.pixilcraftnpcs.command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -53,7 +54,7 @@ public abstract class NewNPCCommand extends TwoLayerCommand {
         }
 
         id = StringArgumentType.getString(context, "id");
-        if (NPCTracker.getInstance().exists(id)) {
+        if (PixilCraftNPCs.getInstance().getNPCTracker().exists(id)) {
             context.getSource().sendError(Text.literal("NPC " + id + " already exists"));
             return -1;
         }

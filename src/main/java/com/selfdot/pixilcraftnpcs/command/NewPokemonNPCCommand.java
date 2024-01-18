@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.pokemon.Species;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.npc.PokemonNPC;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
@@ -25,7 +26,7 @@ public class NewPokemonNPCCommand extends NewNPCCommand {
             context.getSource().sendError(Text.literal("Unknown species " + speciesStr));
             return -1;
         }
-        NPCTracker.getInstance().add(id, new PokemonNPC(
+        PixilCraftNPCs.getInstance().getNPCTracker().add(id, new PokemonNPC(
             id, new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()),
             pitch, yaw, species
         ));

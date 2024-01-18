@@ -22,7 +22,7 @@ public class NPCCommandTree {
     public void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(LiteralArgumentBuilder.<ServerCommandSource>
             literal("npc")
-            .requires(source -> !PixilCraftNPCs.DISABLED)
+            .requires(source -> !PixilCraftNPCs.getInstance().isDisabled())
             .requires(source -> CommandUtils.hasPermission(source, "selfdot.op.npcs"))
             .then(LiteralArgumentBuilder.<ServerCommandSource>
                 literal("new")

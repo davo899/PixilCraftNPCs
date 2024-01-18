@@ -62,49 +62,60 @@ public abstract class NPC<E extends MobEntity> {
 
     public void setCommandList(List<String> commandList) {
         this.commandList = commandList;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setPosition(MultiversePos position, MinecraftServer server) {
         this.position = position;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
         remove(server);
     }
 
     public void setPitch(double pitch) {
         this.pitch = pitch;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setYaw(double yaw) {
         this.yaw = yaw;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setNameplateEnabled(boolean nameplateEnabled) {
         this.nameplateEnabled = nameplateEnabled;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setInteractCooldownSeconds(long interactCooldownSeconds) {
         this.interactCooldownSeconds = interactCooldownSeconds;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setQuestConditionID(long questConditionID, MinecraftServer server) {
         this.questConditionID = questConditionID;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
         server.getPlayerManager().getPlayerList().forEach(this::sendVisibilityUpdate);
     }
 
     public void toggleGloballyInvisible(MinecraftServer server) {
         globallyInvisible = !globallyInvisible;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
         server.getPlayerManager().getPlayerList().forEach(this::sendVisibilityUpdate);
     }
 
     public void setFacesNearestPlayer(boolean facesNearestPlayer) {
         this.facesNearestPlayer = facesNearestPlayer;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void setProximityTriggerRadius(double proximityTriggerRadius) {
         this.proximityTriggerRadius = proximityTriggerRadius;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
     }
 
     public void tick(ServerWorld world) {
@@ -139,7 +150,7 @@ public abstract class NPC<E extends MobEntity> {
         Vec3d pos = position.pos();
         if (
             world.getClosestPlayer(
-                pos.x, pos.y, pos.z, PixilCraftNPCs.CONFIG.getMinDespawnDistance(), null
+                pos.x, pos.y, pos.z, PixilCraftNPCs.getInstance().getConfig().getMinDespawnDistance(), null
             ) == null
         ) {
             if (entityLoaded) {
@@ -184,7 +195,8 @@ public abstract class NPC<E extends MobEntity> {
     private void checkInteract(PlayerEntity player, boolean shouldPrintCooldown) {
         if (globallyInvisible) return;
         if (questConditionID != -1 && !FTBUtils.completedQuest(player, questConditionID)) return;
-        if (!InteractCooldownTracker.getInstance().attemptInteract(player, id, shouldPrintCooldown)) return;
+        if (!PixilCraftNPCs.getInstance().getInteractCooldownTracker()
+            .attemptInteract(player, id, shouldPrintCooldown)) return;
 
         commandList.forEach(
             command -> CommandUtils.executeCommandAsServer(

@@ -1,22 +1,18 @@
 package com.selfdot.pixilcraftnpcs;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.logging.LogUtils;
 import com.selfdot.pixilcraftnpcs.command.CommandListArgumentType;
 import com.selfdot.pixilcraftnpcs.command.NPCCommandTree;
 import com.selfdot.pixilcraftnpcs.npc.InteractCooldownTracker;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPCEntity;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.util.DataKeys;
+import com.selfdot.pixilcraftnpcs.util.DisableableMod;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.InteractionEvent;
-import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.ftb.mods.ftbquests.events.ObjectCompletedEvent;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -38,13 +34,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
 
-public class PixilCraftNPCs implements ModInitializer {
+public class PixilCraftNPCs extends DisableableMod {
 
-    public static boolean DISABLED = false;
-    public static Logger LOGGER = LogUtils.getLogger();
-    public static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static PixilCraftNPCs INSTANCE;
     public static final EntityType<HumanNPCEntity> NPC_HUMAN_SLIM = Registry.register(
         Registries.ENTITY_TYPE,
         new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc_human_slim"),
@@ -61,10 +54,30 @@ public class PixilCraftNPCs implements ModInitializer {
             .disableSummon()
             .build()
     );
-    public static PixilCraftNPCsConfig CONFIG = new PixilCraftNPCsConfig();
+    private final PixilCraftNPCsConfig config = new PixilCraftNPCsConfig(this);
+    private final NPCTracker npcTracker = new NPCTracker(this);
+    private final InteractCooldownTracker interactCooldownTracker = new InteractCooldownTracker(this);
+
+    public static PixilCraftNPCs getInstance() {
+        return INSTANCE;
+    }
+
+    public PixilCraftNPCsConfig getConfig() {
+        return config;
+    }
+
+    public NPCTracker getNPCTracker() {
+        return npcTracker;
+    }
+
+    public InteractCooldownTracker getInteractCooldownTracker() {
+        return interactCooldownTracker;
+    }
 
     @Override
     public void onInitialize() {
+        INSTANCE = this;
+        
         FabricDefaultAttributeRegistry.register(NPC_HUMAN_SLIM, HumanNPCEntity.createMobAttributes());
         FabricDefaultAttributeRegistry.register(NPC_HUMAN_CLASSIC, HumanNPCEntity.createMobAttributes());
 
@@ -82,7 +95,7 @@ public class PixilCraftNPCs implements ModInitializer {
         ObjectCompletedEvent.QUEST.register(this::onQuestCompleted);
         TickEvent.SERVER_LEVEL_PRE.register(this::onLevelTick);
 
-        InteractCooldownTracker.getInstance().load();
+        interactCooldownTracker.load();
     }
 
     private void registerCommands(
@@ -94,39 +107,40 @@ public class PixilCraftNPCs implements ModInitializer {
     }
 
     private void onServerStarted(MinecraftServer server) {
-        CONFIG.reload(server);
-        NPCTracker.getInstance().setServer(server);
-        NPCTracker.getInstance().load();
-        NPCTracker.getInstance().summonAllNPCEntities();
+        config.load();
+        config.save();
+        npcTracker.setServer(server);
+        npcTracker.load();
+        npcTracker.summonAllNPCEntities();
     }
 
     private void onServerStopping(MinecraftServer server) {
-        if (!DISABLED) {
-            NPCTracker.getInstance().save();
-            InteractCooldownTracker.getInstance().save();
+        if (!isDisabled()) {
+            npcTracker.save();
+            interactCooldownTracker.save();
         }
     }
 
     private void onPlayerJoin(ServerPlayerEntity player) {
-        NPCTracker.getInstance().sendClientUpdates(player);
+        npcTracker.sendClientUpdates(player);
     }
 
     private EventResult onInteractEntity(PlayerEntity player, Entity entity, Hand hand) {
         if (player.getWorld().isClient) return EventResult.pass();
         if (hand == Hand.OFF_HAND) return EventResult.pass();
-        NPCTracker.getInstance().checkInteract(player, entity);
+        npcTracker.checkInteract(player, entity);
         return EventResult.pass();
     }
 
     private EventResult onQuestCompleted(ObjectCompletedEvent.QuestEvent questEvent) {
         questEvent.getOnlineMembers().forEach(
-            player -> NPCTracker.getInstance().onQuestCompleted(player, questEvent.getQuest().id)
+            player -> npcTracker.onQuestCompleted(player, questEvent.getQuest().id)
         );
         return EventResult.pass();
     }
 
     private void onLevelTick(ServerWorld world) {
-        NPCTracker.getInstance().onTick(world);
+        npcTracker.onTick(world);
     }
 
 }

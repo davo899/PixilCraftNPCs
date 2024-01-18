@@ -2,6 +2,7 @@ package com.selfdot.pixilcraftnpcs.command;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.selfdot.pixilcraftnpcs.PixilCraftNPCs;
 import com.selfdot.pixilcraftnpcs.npc.HumanNPC;
 import com.selfdot.pixilcraftnpcs.npc.NPCTracker;
 import com.selfdot.pixilcraftnpcs.util.MultiversePos;
@@ -15,7 +16,7 @@ public class NewHumanNPCCommand extends NewNPCCommand {
 
     @Override
     public int runSubCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        NPCTracker.getInstance().add(id, new HumanNPC(
+        PixilCraftNPCs.getInstance().getNPCTracker().add(id, new HumanNPC(
             id, new MultiversePos(player.getPos(), player.getWorld().getRegistryKey().getValue()), pitch, yaw
         ));
         context.getSource().sendMessage(Text.literal("Created new human NPC " + id));

@@ -16,8 +16,8 @@ public class CommandUtils {
             server.getCommandManager().getDispatcher().execute(command, server.getCommandSource());
 
         } catch (CommandSyntaxException e) {
-            PixilCraftNPCs.LOGGER.error("Could not run: " + command);
-            PixilCraftNPCs.LOGGER.error(e.getMessage());
+            PixilCraftNPCs.getInstance().getLogger().error("Could not run: " + command);
+            PixilCraftNPCs.getInstance().getLogger().error(e.getMessage());
         }
     }
 
