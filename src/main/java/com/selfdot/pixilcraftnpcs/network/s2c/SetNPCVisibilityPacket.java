@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SetNPCVisibilityPacket extends PixilCraftNPCsPacket {
 
     public static final Identifier ID = new Identifier(
-        DataKeys.PIXILCRAFT_NAMESPACE, "set_npc_visibility"
+        DataKeys.MOD_NAMESPACE, "set_npc_visibility"
     );
 
     private final UUID npcEntityID;

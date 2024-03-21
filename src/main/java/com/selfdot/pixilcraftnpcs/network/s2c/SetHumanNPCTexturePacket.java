@@ -11,7 +11,7 @@ import java.util.UUID;
 public class SetHumanNPCTexturePacket extends PixilCraftNPCsPacket {
 
     public static final Identifier ID = new Identifier(
-        DataKeys.PIXILCRAFT_NAMESPACE, "set_human_npc_texture"
+        DataKeys.MOD_NAMESPACE, "set_human_npc_texture"
     );
 
     private final UUID npcEntityID;

@@ -17,7 +17,7 @@ public class SetHumanNPCSkinCommand extends NPCEditCommand {
             return -1;
         }
         String texture = StringArgumentType.getString(context, "texture");
-        humanNPC.setTexture(new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, texture), context.getSource().getServer());
+        humanNPC.setTexture(new Identifier(DataKeys.MOD_NAMESPACE, texture), context.getSource().getServer());
         context.getSource().sendMessage(Text.literal(
             "Set NPC " + id + "'s texture file to " + texture
         ));

@@ -40,7 +40,7 @@ public class PixilCraftNPCs extends DisableableMod {
     private static PixilCraftNPCs INSTANCE;
     public static final EntityType<HumanNPCEntity> NPC_HUMAN_SLIM = Registry.register(
         Registries.ENTITY_TYPE,
-        new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc_human_slim"),
+        new Identifier(DataKeys.MOD_NAMESPACE, "npc_human_slim"),
         FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HumanNPCEntity::new)
             .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
             .disableSummon()
@@ -48,7 +48,7 @@ public class PixilCraftNPCs extends DisableableMod {
     );
     public static final EntityType<HumanNPCEntity> NPC_HUMAN_CLASSIC = Registry.register(
         Registries.ENTITY_TYPE,
-        new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "npc_human_classic"),
+        new Identifier(DataKeys.MOD_NAMESPACE, "npc_human_classic"),
         FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, HumanNPCEntity::new)
             .dimensions(EntityDimensions.fixed(0.6f, 1.8f))
             .disableSummon()
@@ -82,7 +82,7 @@ public class PixilCraftNPCs extends DisableableMod {
         FabricDefaultAttributeRegistry.register(NPC_HUMAN_CLASSIC, HumanNPCEntity.createMobAttributes());
 
         ArgumentTypeRegistry.registerArgumentType(
-            new Identifier(DataKeys.PIXILCRAFT_NAMESPACE, "command_list"),
+            new Identifier(DataKeys.MOD_NAMESPACE, "command_list"),
             CommandListArgumentType.class,
             ConstantArgumentSerializer.of(CommandListArgumentType::new)
         );

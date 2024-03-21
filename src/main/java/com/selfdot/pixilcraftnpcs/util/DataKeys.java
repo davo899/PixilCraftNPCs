@@ -2,7 +2,7 @@ package com.selfdot.pixilcraftnpcs.util;
 
 public class DataKeys {
 
-    public static final String PIXILCRAFT_NAMESPACE = "pixilcraftnpcs";
+    public static final String MOD_NAMESPACE = "pixilcraftnpcs";
 
     public static final String PLAYER_TOKEN = "%player%";
 
