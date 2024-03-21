@@ -126,6 +126,17 @@ public class NPCCommandTree {
                         )
                     )
                     .then(LiteralArgumentBuilder.<ServerCommandSource>
+                        literal("questAntiCondition")
+                        .then(RequiredArgumentBuilder.<ServerCommandSource, String>
+                            argument("questID", string())
+                            .executes(new SetQuestAntiConditionCommand())
+                        )
+                        .then(LiteralArgumentBuilder.<ServerCommandSource>
+                            literal("none")
+                            .executes(new ClearQuestAntiConditionCommand())
+                        )
+                    )
+                    .then(LiteralArgumentBuilder.<ServerCommandSource>
                         literal("facesNearestPlayer")
                         .then(RequiredArgumentBuilder.<ServerCommandSource, Boolean>
                             argument("facesNearestPlayer", bool())

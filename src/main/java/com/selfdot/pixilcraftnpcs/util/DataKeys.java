@@ -14,6 +14,7 @@ public class DataKeys {
     public static final String NPC_NAMEPLATE_ENABLED = "nameplateEnabled";
     public static final String NPC_INTERACT_COOLDOWN_SECONDS = "interactCooldownSeconds";
     public static final String NPC_QUEST_CONDITION_ID = "questConditionID";
+    public static final String NPC_QUEST_ANTICONDITION_ID = "questAntiConditionID";
     public static final String NPC_GLOBALLY_INVISIBLE = "globallyInvisible";
     public static final String NPC_FACES_NEAREST_PLAYER = "facesNearestPlayer";
     public static final String NPC_PROXIMITY_TRIGGER_RADIUS = "proximityTriggerRadius";

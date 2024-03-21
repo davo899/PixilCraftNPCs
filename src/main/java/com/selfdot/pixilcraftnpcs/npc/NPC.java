@@ -39,6 +39,7 @@ public abstract class NPC<E extends MobEntity> {
     protected boolean nameplateEnabled = true;
     private long interactCooldownSeconds = 0;
     private long questConditionID = -1;
+    private long questAntiConditionID = -1;
     protected boolean globallyInvisible = false;
     protected boolean facesNearestPlayer = false;
     private double proximityTriggerRadius = 0;
@@ -98,6 +99,12 @@ public abstract class NPC<E extends MobEntity> {
 
     public void setQuestConditionID(long questConditionID, MinecraftServer server) {
         this.questConditionID = questConditionID;
+        PixilCraftNPCs.getInstance().getNPCTracker().save();
+        server.getPlayerManager().getPlayerList().forEach(this::sendVisibilityUpdate);
+    }
+
+    public void setQuestAntiConditionID(long questAntiConditionID, MinecraftServer server) {
+        this.questAntiConditionID = questAntiConditionID;
         PixilCraftNPCs.getInstance().getNPCTracker().save();
         server.getPlayerManager().getPlayerList().forEach(this::sendVisibilityUpdate);
     }
@@ -192,11 +199,19 @@ public abstract class NPC<E extends MobEntity> {
         checkInteract(player, true);
     }
 
+    private boolean isVisibleFor(PlayerEntity player) {
+        return !globallyInvisible &&
+            (questConditionID == -1 || FTBUtils.completedQuest(player, questConditionID)) &&
+            (questAntiConditionID == -1 || !FTBUtils.completedQuest(player, questAntiConditionID));
+    }
+
     private void checkInteract(PlayerEntity player, boolean shouldPrintCooldown) {
-        if (globallyInvisible) return;
-        if (questConditionID != -1 && !FTBUtils.completedQuest(player, questConditionID)) return;
-        if (!PixilCraftNPCs.getInstance().getInteractCooldownTracker()
-            .attemptInteract(player, id, shouldPrintCooldown)) return;
+        if (!isVisibleFor(player)) return;
+        if (
+            !PixilCraftNPCs.getInstance().getInteractCooldownTracker().attemptInteract(player, id, shouldPrintCooldown)
+        ) {
+            return;
+        }
 
         commandList.forEach(
             command -> CommandUtils.executeCommandAsServer(
@@ -212,14 +227,11 @@ public abstract class NPC<E extends MobEntity> {
     }
 
     private void sendVisibilityUpdate(ServerPlayerEntity player) {
-        new SetNPCVisibilityPacket(
-            entity.getUuid(),
-            !globallyInvisible && (questConditionID == -1 || FTBUtils.completedQuest(player, questConditionID))
-        ).sendS2C(player);
+        new SetNPCVisibilityPacket(entity.getUuid(), isVisibleFor(player)).sendS2C(player);
     }
 
     public void onQuestCompleted(ServerPlayerEntity player, long questConditionID) {
-        if (questConditionID != this.questConditionID) return;
+        if (questConditionID != this.questConditionID && questConditionID != this.questAntiConditionID) return;
         sendVisibilityUpdate(player);
     }
 
@@ -235,6 +247,7 @@ public abstract class NPC<E extends MobEntity> {
         jsonObject.addProperty(DataKeys.NPC_NAMEPLATE_ENABLED, nameplateEnabled);
         jsonObject.addProperty(DataKeys.NPC_INTERACT_COOLDOWN_SECONDS, interactCooldownSeconds);
         jsonObject.addProperty(DataKeys.NPC_QUEST_CONDITION_ID, questConditionID);
+        jsonObject.addProperty(DataKeys.NPC_QUEST_ANTICONDITION_ID, questAntiConditionID);
         jsonObject.addProperty(DataKeys.NPC_GLOBALLY_INVISIBLE, globallyInvisible);
         jsonObject.addProperty(DataKeys.NPC_FACES_NEAREST_PLAYER, facesNearestPlayer);
         jsonObject.addProperty(DataKeys.NPC_PROXIMITY_TRIGGER_RADIUS, proximityTriggerRadius);
@@ -282,6 +295,8 @@ public abstract class NPC<E extends MobEntity> {
         npc.globallyInvisible = jsonObject.get(DataKeys.NPC_GLOBALLY_INVISIBLE).getAsBoolean();
         npc.facesNearestPlayer = jsonObject.get(DataKeys.NPC_FACES_NEAREST_PLAYER).getAsBoolean();
         npc.proximityTriggerRadius = jsonObject.get(DataKeys.NPC_PROXIMITY_TRIGGER_RADIUS).getAsDouble();
+        npc.questAntiConditionID = jsonObject.has(DataKeys.NPC_QUEST_ANTICONDITION_ID) ?
+            jsonObject.get(DataKeys.NPC_QUEST_ANTICONDITION_ID).getAsLong() : -1;
         return npc;
     }
 
